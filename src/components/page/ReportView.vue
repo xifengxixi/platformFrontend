@@ -264,7 +264,7 @@
 </template>
 
 <script>
-    import { report_view } from '@/api/api';
+    import { report_view } from '@/api/project';
     export default {
         name: 'reportShow',
         data() {

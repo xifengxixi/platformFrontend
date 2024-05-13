@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import {reports_list, delete_report, report_download, deletReports, openReports} from '@/api/api';
+import {reports_list, delete_report, report_download, deletReports, openReports} from '@/api/project';
     export default {
         // beforeRouteEnter (to, from, next) {
         //     // 在路由跳转页面实例化之前被调用, 此时还没有this实例, 但是可以通过next的回调中获取实例的引用

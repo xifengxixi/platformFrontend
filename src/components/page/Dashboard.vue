@@ -166,7 +166,7 @@
 </template>
 
 <script>
-    import { summary } from '@/api/api'
+    import api from '@/api/summary'
     export default {
       beforeRouteEnter(to, from, next){
         next((vm)=>{
@@ -186,7 +186,7 @@
       // },
       methods: {
         getData() {
-          summary()
+          api.summary()
               .then(response => {
                 this.user = response.data.user;
                 this.statistics = response.data.statistics;

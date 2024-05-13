@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { register, check_username, check_email } from '@/api/api'
+import api from '@/api/user'
 
 export default {
   data: function () {
@@ -55,7 +55,7 @@ export default {
       }
       else {
         try {
-          var response = await check_username(value)
+          var response = await api.check_username(value)
           // console.log('账号数:' + response.data.count)
           if (response.data.count > 0) {
             this.err_username_msg = '用户名已存在';
@@ -90,7 +90,7 @@ export default {
         callback(new Error('请输入合法的邮箱地址'));
       }
       else {
-        check_email(value)
+        api.check_email(value)
           .then((response) => {
             if (response.data.count > 0) {
               this.err_email_msg = '邮箱已存在';
@@ -175,7 +175,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          register(this.ruleForm)
+          api.register(this.ruleForm)
             .then((response) => {
 
               // 记录用户的登录状态

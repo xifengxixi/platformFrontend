@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import { login } from "@/api/api";
+import api from "@/api/project";
 
 export default {
   data() {
@@ -69,7 +69,7 @@ export default {
           // this.$router.push('/');
           var that = this;
           try {
-            var response = await login(this.ruleForm);
+            var response = await api.login(this.ruleForm);
             //本地存储用户信息
             // cookie.setCookie('username', response.data.username, 1);
             // cookie.setCookie('user_id', response.data.user_id, 1);
