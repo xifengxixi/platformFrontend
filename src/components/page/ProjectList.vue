@@ -8,7 +8,9 @@
     </div>
     <div class="container">
       <div class="handle-box">
-        <el-button type="primary" icon="el-icon-delete" @click="delAll">批量删除</el-button>
+        <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
+        <el-input v-model="search_project" placeholder="按项目名称搜索" class="handle-input mr10"></el-input>
+        <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
       </div>
       <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%"
         @selection-change="handleSelectionChange" border stripe>
@@ -38,9 +40,6 @@
         <el-table-column prop="create_time" label="创建时间" sortable align="center">
         </el-table-column>
 
-        <el-table-column prop="update_time" label="更新时间" sortable align="center">
-        </el-table-column>
-
         <el-table-column label="操作" align="center">
         </el-table-column>
 
@@ -67,6 +66,7 @@
           total_nums: 1,    // 总条数
 
           del_list: [],
+          search_project: '',
         }
       },
 
@@ -98,7 +98,23 @@
         },
 
         delAll() {
-          api.batch_delete()
+          api.batchDelete({
+            ids: this.del_list
+          }).then(response => {
+            // 项目删除成功
+            this.$message.success('删除成功');
+            this.getData();
+          }).catch(error => {
+            this.$message.error('服务器错误');
+          })
+        },
+
+        search() {
+          api.getList({
+            name: this.search_project
+          }).then((response) => {
+            this.tableData = response.data.results
+          })
         }
       }
     }
@@ -107,5 +123,28 @@
 <style scoped>
 .handle-box {
   margin-bottom: 20px;
+}
+
+.handle-select {
+  width: 120px;
+}
+
+.handle-input {
+  width: 300px;
+  display: inline-block;
+}
+.del-dialog-cnt{
+  font-size: 16px;
+  text-align: center
+}
+.table{
+  width: 100%;
+  font-size: 14px;
+}
+.red{
+  color: #ff0000;
+}
+.mr10{
+  margin-right: 10px;
 }
 </style>
