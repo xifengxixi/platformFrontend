@@ -10,7 +10,9 @@
       <div class="handle-box">
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <el-input v-model="search_project" placeholder="按项目名称搜索" class="handle-input mr10"></el-input>
+        <el-input v-model="search_leader" placeholder="按项目负责人搜索" class="handle-input mr10"></el-input>
         <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
+        <el-button type="primary" icon="el-icon-refresh-left" @click="reset">重置</el-button>
       </div>
       <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%"
         @selection-change="handleSelectionChange" border stripe>
@@ -48,6 +50,12 @@
         <el-button @click="toggleSelection('Invert')">反选</el-button>
         <el-button @click="toggleSelection('Cancel')">取消选择</el-button>
       </div>
+      <div class="pagination">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" 
+          :current-page="cur_page" :page-sizes="[5, 10, 15, 20]" :page-size="page_size" 
+          layout="total, sizes, prev, pager, next, jumper" :total="total_nums">
+        </el-pagination>
+      </div>
     </div>
   </div>
 </template>
@@ -61,12 +69,14 @@
       data() {
         return {
           tableData: [],
+          
+          del_list: [],
+          search_project: '',
+          search_leader: '',
+
           cur_page: 1,      // 当前页码
           page_size: 10,    // 每页显示的数量
           total_nums: 1,    // 总条数
-
-          del_list: [],
-          search_project: '',
         }
       },
 
@@ -111,11 +121,29 @@
 
         search() {
           api.getList({
-            name: this.search_project
+            name: this.search_project,
+            leader: this.search_leader,
           }).then((response) => {
             this.tableData = response.data.results
+            this.cur_page = response.data.current_page_num || 1;
+            this.total_nums = response.data.count || 1;
           })
-        }
+        },
+
+        reset() {
+          this.search_project = '';
+          this.search_leader = '';
+        },
+
+        handleCurrentChange(val) {
+          this.cur_page = val;
+          console.log(val)
+          this.getData();
+        },
+        handleSizeChange(val) {
+          this.page_size = val;
+          this.getData();
+        },
       }
     }
 </script>

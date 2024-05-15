@@ -5,7 +5,7 @@ export default{
 
     // 获取项目列表
     projectList(params) {
-        return http.get(`/projects/`, params)
+        return http.get(`/projects/?page=`+ params.page + '&size=' + params.size,params)
     },
 
     // 批量删除项目
