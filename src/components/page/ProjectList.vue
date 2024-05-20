@@ -28,6 +28,25 @@
         </el-table-column>
 
         <el-table-column prop="name" label="项目名称" width="250">
+          <template slot-scope="scope">
+            <el-popover trigger="hover" placement="top">
+              <router-link to="/interfaces_list/" class="register_link">
+                <p>接口数：{{ scope.row.interfaces }}</p>
+              </router-link>
+              <router-link to="/testsuits_list/" class="register_link">
+                <p>套件数：{{ scope.row.testsuits }}</p>
+              </router-link>
+              <router-link to="/testcases_list/" class="register_link">
+                <p>用例数：{{ scope.row.testcases }}</p>
+              </router-link>
+              <router-link to="/configures_list/" class="register_link">
+                <p>配置数：{{ scope.row.configures }}</p>
+              </router-link>
+              <div slot="reference" class="name-wrapper">
+                <el-tag size="medium">{{ scope.row.name }}</el-tag>
+              </div>
+            </el-popover>
+          </template>
         </el-table-column>
 
         <el-table-column prop="leader" label="项目负责人" width="100">
@@ -43,7 +62,15 @@
         </el-table-column>
 
         <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" icon="el-icon-video-play" @click="handleRun(scope.$index, scope.row)">运行</el-button>
+            <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+            <el-button type="text" icon="el-icon-delete" @click="handleDelete(scope.$index, scope.row)"
+              class="red">删除</el-button>
+          </template>
         </el-table-column>
+
+
 
       </el-table>
       <div style="margin-top: 20px">
@@ -51,12 +78,21 @@
         <el-button @click="toggleSelection('Cancel')">取消选择</el-button>
       </div>
       <div class="pagination">
-        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" 
-          :current-page="cur_page" :page-sizes="[5, 10, 15, 20]" :page-size="page_size" 
-          layout="total, sizes, prev, pager, next, jumper" :total="total_nums">
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="cur_page"
+          :page-sizes="[5, 10, 15, 20]" :page-size="page_size" layout="total, sizes, prev, pager, next, jumper"
+          :total="total_nums">
         </el-pagination>
       </div>
     </div>
+
+    <!-- 运行弹出框 -->
+    <el-dialog title="运行项目" :visible.sync="runVisible" width="30%" center>
+      <span>需要注意的是内容是默认不居中的</span>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="runVisible = false">取 消</el-button>
+        <el-button type="primary" @click="runVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -77,6 +113,17 @@
           cur_page: 1,      // 当前页码
           page_size: 10,    // 每页显示的数量
           total_nums: 1,    // 总条数
+
+          project_idx: -1,  // 在tableData数组中的索引值
+          project_id: -1,   // 在数据库中的真实索引值
+          form: {},
+
+          runVisible: false,  // 运行项目弹窗是否显示标识
+          editVisible: false, // 编辑项目弹窗是否显示标识
+          delVisible: false,  // 删除项目弹窗是否显示标识
+
+          env_id: '',
+          env_names: [],  // 返回的环境变量数据
         }
       },
 
@@ -143,6 +190,24 @@
         handleSizeChange(val) {
           this.page_size = val;
           this.getData();
+        },
+
+        handleRun(index, row) {
+          this.project_idx = index; // 当前运行的数据，在tableData数组中的索引值
+          this.project_id = row.id; // 当前运行的数据在数据库中的真实索引值
+          this.form = row;
+          this.runVisible = true;
+        },
+        handleEdit(index, row) {
+          this.project_idx = index; // 当前编辑的数据，在tableData数组中的索引值
+          this.project_id = row.id; // 当前编辑的数据在数据库中的真实索引值
+          this.form = {...row};
+          this.editVisible = true;
+        },
+        handleDelete(index, row) {
+          this.project_idx = index;
+          this.project_id = row.id;
+          this.delVisible = true;
         },
       }
     }

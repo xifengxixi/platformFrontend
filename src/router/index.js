@@ -27,6 +27,30 @@ let router = new Router({
 					name: 'projects_list'
 				},
 				{
+					path: '/interfaces_list',
+					component: resolve => require(['@/components/page/InterfaceList.vue'], resolve),
+					meta: { title: '接口列表' },
+					name: 'interfaces_list'
+				},
+				{
+					path: '/testsuits_list',
+					component: resolve => require(['@/components/page/TestsuitList.vue'], resolve),
+					meta: { title: '套件列表' },
+					name: 'testsuits_list'
+				},
+				{
+					path: '/testcases_list',
+					component: resolve => require(['@/components/page/TestcaseList.vue'], resolve),
+					meta: { title: '用例列表' },
+					name: 'testcases_list'
+				},
+				{
+					path: '/configures_list',
+					component: resolve => require(['@/components/page/ConfigureList.vue'], resolve),
+					meta: { title: '配置列表' },
+					name: 'configures_list'
+				},
+				{
 					path: '/403',
 					component: resolve => require(['@/components/page/403.vue'], resolve),
 					meta: { title: '403' },
