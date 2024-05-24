@@ -65,8 +65,7 @@
           <template slot-scope="scope">
             <el-button type="text" icon="el-icon-video-play" @click="handleRun(scope.$index, scope.row)">运行</el-button>
             <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-            <el-button type="text" icon="el-icon-delete" @click="handleDelete(scope.$index, scope.row)"
-              class="red">删除</el-button>
+            <el-button type="text" icon="el-icon-delete" @click="handleDelete(scope.$index, scope.row)" class="red">删除</el-button>
           </template>
         </el-table-column>
 
@@ -87,10 +86,38 @@
 
     <!-- 运行弹出框 -->
     <el-dialog title="运行项目" :visible.sync="runVisible" width="30%" center>
-      <span>需要注意的是内容是默认不居中的</span>
+      <el-form ref="form" :model="form" label-width="100px">
+        <el-form-item label="运行环境">
+          <el-select v-model="env_id" placeholder="请选择运行环境">
+            <el-option v-for="item in env_names" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="runVisible = false">取 消</el-button>
-        <el-button type="primary" @click="runVisible = false">确 定</el-button>
+        <el-button type="primary" @click="openFullScreen" v-loading.fullscreen.lock="fullscreenLoading">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 编辑弹出框 -->
+    <el-dialog title="编辑项目" :visible.sync="editVisible" width="40%" center>
+      <el-form ref="form" :model="form" label-width="100px">
+        <el-form-item label="项目名称">
+          <el-input v-model="form.name" clearable placeholder="请输入项目名称"></el-input>
+        </el-form-item>
+        <el-form-item label="项目负责人">
+          <el-input v-model="form.leader" clearable placeholder="请输入项目负责人"></el-input>
+        </el-form-item>
+        <el-form-item label="应用名称">
+          <el-input v-model="form.publish_app" clearable placeholder="请输入应用名称"></el-input>
+        </el-form-item>
+        <el-form-item label="测试人员">
+          <el-input v-model="form.tester" clearable placeholder="请输入测试人员"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editVisible = false">取 消</el-button>
+        <el-button type="primary" @click="saveEdit">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -98,6 +125,7 @@
 
 <script>
   import api from '@/api/project';
+  import api_env from '@/api/env';
 
     export default {
       name: 'ProjectList',
@@ -124,11 +152,13 @@
 
           env_id: '',
           env_names: [],  // 返回的环境变量数据
+          fullscreenLoading: false,
         }
       },
 
-      mounted() {
+      created() {
         this.getData();
+        this.getEnvNames();
       },
 
       methods: {
@@ -184,7 +214,6 @@
 
         handleCurrentChange(val) {
           this.cur_page = val;
-          console.log(val)
           this.getData();
         },
         handleSizeChange(val) {
@@ -208,6 +237,54 @@
           this.project_idx = index;
           this.project_id = row.id;
           this.delVisible = true;
+        },
+
+        getEnvNames() {
+          api_env.envNames()
+          .then(response => {
+             this.env_names = response.data;
+          })
+          .catch(error => {
+            this.$message.error('服务器错误');
+          })
+        },
+
+        async openFullScreen() {
+          if (this.env_id === '') {
+            this.$message.error('请选择运行环境')
+          }
+          else {
+            this.runVisible = false;
+            this.fullscreenLoading = true;
+            let response = await api.runProject(this.project_id, {env_id: this.env_id})
+            // console.log(response)
+            if (response.data.detail === '此项目下无接口，无法运行！'){
+              this.fullscreenLoading = false;
+              this.$message.error('此项目下无接口，无法运行！');
+              return
+            }
+            if (response.status === 201) {
+              this.fullscreenLoading = false;
+              this.$message.info('运行成功');
+            }
+            else {
+              this.fullscreenLoading = false;
+              this.$message.error('运行失败');
+            }
+          }
+        },
+
+        saveEdit() {
+          api.editProject(this.project_id, this.form)
+          .then(response => {
+            this.editVisible = false;
+            this.$message.success('编辑成功');
+            this.getData();
+          })
+          .catcn(error => {
+            this.editVisible = false;
+            this.$message.error('服务器错误');
+          })
         },
       }
     }

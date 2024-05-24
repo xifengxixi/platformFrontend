@@ -16,7 +16,17 @@ export default{
     // 通过项目名称获取项目详情
     getList(params) {
         return http.post(`/projects/get_list/`, params)
-    }
+    },
+
+    // 通过项目id运行项目用例
+    runProject(id, params) {
+        return http.post(`/projects/${id}/run/`, params)
+    },
+
+    // 编辑项目
+    editProject(id, params) {
+        return http.put(`/projects/${id}/`, params)
+    },
 }
 
 
