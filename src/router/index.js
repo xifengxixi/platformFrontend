@@ -27,6 +27,12 @@ let router = new Router({
 					name: 'projects_list'
 				},
 				{
+					path: '/projects_add',
+					component: resolve => require(['@/components/page/ProjectAdd.vue'], resolve),
+					meta: { title: '项目新增' },
+					name: 'projects_add'
+				},
+				{
 					path: '/interfaces_list',
 					component: resolve => require(['@/components/page/InterfaceList.vue'], resolve),
 					meta: { title: '接口列表' },

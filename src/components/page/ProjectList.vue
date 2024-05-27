@@ -120,6 +120,16 @@
         <el-button type="primary" @click="saveEdit">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 删除提示框 -->
+    <el-dialog title="删除项目" :visible.sync="delVisible" width="30%" center>
+      <div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="delVisible = false">取 消</el-button>
+        <el-button type="primary" @click="deleteRow">确 定</el-button>
+      </span>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -286,6 +296,19 @@
             this.$message.error('服务器错误');
           })
         },
+
+        deleteRow() {
+          api.deleteProject(this.project_id)
+          .then(response => {
+            this.$message.success('删除成功')
+            this.delVisible = false;
+            this.getData();
+          })
+          .catch(error => {
+            this.delVisible = false;
+            this.$message.error('服务器错误')
+          })
+        }
       }
     }
 </script>

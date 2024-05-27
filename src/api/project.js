@@ -27,6 +27,16 @@ export default{
     editProject(id, params) {
         return http.put(`/projects/${id}/`, params)
     },
+
+    // 删除项目
+    deleteProject(id) {
+        return http.delete(`/projects/${id}/`)
+    },
+
+    // 新增项目
+    createProject(params) {
+        return http.post(`/projects/`, params)
+    }
 }
 
 
