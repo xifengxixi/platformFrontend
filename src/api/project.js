@@ -1,7 +1,7 @@
 import http from '@/utils/requests'
 
 
-export default{
+export default {
 
     // 获取项目列表
     projectList(params) {
@@ -36,7 +36,7 @@ export default{
     // 新增项目
     createProject(params) {
         return http.post(`/projects/`, params)
-    }
+    },
 }
 
 

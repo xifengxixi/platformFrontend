@@ -55,6 +55,9 @@
         <el-table-column prop="publish_app" label="应用名称" width="250">
         </el-table-column>
 
+        <el-table-column prop="programmer" label="开发人员" width="100">
+        </el-table-column>
+
         <el-table-column prop="tester" label="测试人员" width="100">
         </el-table-column>
 
@@ -110,6 +113,9 @@
         </el-form-item>
         <el-form-item label="应用名称">
           <el-input v-model="form.publish_app" clearable placeholder="请输入应用名称"></el-input>
+        </el-form-item>
+        <el-form-item label="开发人员">
+          <el-input v-model="form.programmer" clearable placeholder="请输入测试人员"></el-input>
         </el-form-item>
         <el-form-item label="测试人员">
           <el-input v-model="form.tester" clearable placeholder="请输入测试人员"></el-input>

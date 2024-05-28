@@ -33,6 +33,12 @@ let router = new Router({
 					name: 'projects_add'
 				},
 				{
+					path: '/envs_add',
+					component: resolve => require(['@/components/page/EnvAdd.vue'], resolve),
+					meta: { title: '环境新增' },
+					name: 'envs_add'
+				},
+				{
 					path: '/interfaces_list',
 					component: resolve => require(['@/components/page/InterfaceList.vue'], resolve),
 					meta: { title: '接口列表' },

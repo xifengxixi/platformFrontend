@@ -87,7 +87,8 @@ export default {
                         this.$message.success('新增项目成功！');
                         // 1秒后刷新
                         setInterval(function () {
-                            that.$router.go();
+                            // that.$router.go();
+                            that.resetForm('form');
                         }, 1000);
                     })
                     .catch(error => {
