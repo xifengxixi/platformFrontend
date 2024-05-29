@@ -86,7 +86,7 @@ export default {
                     .then(response => {
                         this.$message.success('新增项目成功！');
                         // 1秒后刷新
-                        setInterval(function () {
+                        setTimeout(function () {
                             // that.$router.go();
                             that.resetForm('form');
                         }, 1000);

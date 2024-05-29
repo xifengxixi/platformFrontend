@@ -70,7 +70,7 @@ export default {
                     api.createEnv(this.form)
                     .then(response => {
                         this.$message.success('新建环境成功');
-                        setInterval(function() {
+                        setTimeout(function() {
                             that.resetForm('form');
                         }, 1000)
                     })

@@ -11,7 +11,7 @@
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <el-input v-model="search_project" placeholder="按项目名称搜索" class="handle-input mr10"></el-input>
         <el-input v-model="search_leader" placeholder="按项目负责人搜索" class="handle-input mr10"></el-input>
-        <el-button type="primary" icon="el-icon-search" @click="search">搜索</el-button>
+        <el-button type="primary" icon="el-icon-search" @click="getData">搜索</el-button>
         <el-button type="primary" icon="el-icon-refresh-left" @click="reset">重置</el-button>
       </div>
       <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%"
@@ -19,10 +19,6 @@
 
         <el-table-column type="selection" width="55">
         </el-table-column>
-
-        <!-- <el-table-column label="日期" width="120">
-        <template slot-scope="scope">{{ scope.row.date }}</template>
-      </el-table-column> -->
 
         <el-table-column prop="id" label="序号" width="55">
         </el-table-column>
@@ -179,9 +175,11 @@
 
       methods: {
         getData() {
-          api.projectList({
-            'page': this.cur_page,
-            'size': this.page_size
+          api.getList({
+            page: this.cur_page,
+            size: this.page_size,
+            name: this.search_project,
+            leader: this.search_leader,
           }).then(response => {
             this.tableData = response.data.results;
             this.cur_page = response.data.current_page_num || 1;
@@ -209,17 +207,6 @@
             this.getData();
           }).catch(error => {
             this.$message.error('服务器错误');
-          })
-        },
-
-        search() {
-          api.getList({
-            name: this.search_project,
-            leader: this.search_leader,
-          }).then((response) => {
-            this.tableData = response.data.results
-            this.cur_page = response.data.current_page_num || 1;
-            this.total_nums = response.data.count || 1;
           })
         },
 

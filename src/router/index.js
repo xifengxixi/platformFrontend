@@ -39,6 +39,12 @@ let router = new Router({
 					name: 'envs_add'
 				},
 				{
+					path: 'envs_list',
+					component: resolve => require(['@/components/page/EnvList.vue'], resolve),
+					meta: { title: '环境列表' },
+					name: 'envs_list'
+				},
+				{
 					path: '/interfaces_list',
 					component: resolve => require(['@/components/page/InterfaceList.vue'], resolve),
 					meta: { title: '接口列表' },
