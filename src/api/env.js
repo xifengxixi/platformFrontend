@@ -26,4 +26,14 @@ export default {
     batchDelete(params) {
         return http.post(`/envs/batch_delete/`, params);
     },
+
+    // 编辑环境
+    editEnv(id, params) {
+        return http.put(`/envs/${id}/`, params);
+    },
+
+    // 删除环境
+    delEnv(id) {
+        return http.delete(`/envs/${id}/`);
+    },
 }

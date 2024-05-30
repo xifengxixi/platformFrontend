@@ -7,6 +7,7 @@
       </el-breadcrumb>
     </div>
     <div class="container">
+
       <div class="handle-box">
         <el-button type="primary" icon="el-icon-delete" class="handle-del mr10" @click="delAll">批量删除</el-button>
         <el-input v-model="search_project" placeholder="按项目名称搜索" class="handle-input mr10"></el-input>
@@ -14,13 +15,14 @@
         <el-button type="primary" icon="el-icon-search" @click="getData">搜索</el-button>
         <el-button type="primary" icon="el-icon-refresh-left" @click="reset">重置</el-button>
       </div>
+
       <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%"
         @selection-change="handleSelectionChange" border stripe>
 
         <el-table-column type="selection" width="55">
         </el-table-column>
 
-        <el-table-column prop="id" label="序号" width="55">
+        <el-table-column type="index" label="序号" width="55">
         </el-table-column>
 
         <el-table-column prop="name" label="项目名称" width="250">
@@ -68,9 +70,8 @@
           </template>
         </el-table-column>
 
-
-
       </el-table>
+
       <div style="margin-top: 20px">
         <el-button @click="toggleSelection('Invert')">反选</el-button>
         <el-button @click="toggleSelection('Cancel')">取消选择</el-button>
@@ -284,7 +285,7 @@
             this.$message.success('编辑成功');
             this.getData();
           })
-          .catcn(error => {
+          .catch(error => {
             this.editVisible = false;
             this.$message.error('服务器错误');
           })

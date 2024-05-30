@@ -84,12 +84,19 @@ export default {
                     let that = this
                     api.createProject(this.form)
                     .then(response => {
-                        this.$message.success('新增项目成功！');
-                        // 1秒后刷新
-                        setTimeout(function () {
-                            // that.$router.go();
-                            that.resetForm('form');
-                        }, 1000);
+                        if (response.status === 201) {
+                            this.$message.success('新增项目成功！');
+                            // 1秒后重置
+                            setTimeout(function () {
+                                // that.$router.go();
+                                that.resetForm('form');
+                            }, 1000);
+                        }
+                        else if (response.status === 400) {
+                            if (response.data.hasOwnProperty('name')) {
+                                this.$message.error(response.data.name[0]);
+                            }
+                        }
                     })
                     .catch(error => {
                         this.$message.error('服务器错误');

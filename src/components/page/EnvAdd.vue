@@ -69,10 +69,20 @@ export default {
                     let that = this;
                     api.createEnv(this.form)
                     .then(response => {
-                        this.$message.success('新建环境成功');
-                        setTimeout(function() {
-                            that.resetForm('form');
-                        }, 1000)
+                        if (response.status === 201) {
+                            this.$message.success('新建环境成功');
+                            setTimeout(function() {
+                                that.resetForm('form');
+                            }, 1000)
+                        }
+                        else if (response.status === 400) {
+                            if (response.data.hasOwnProperty('name')) {
+                                this.$message.error(response.data.name[0]);
+                            }
+                            else if (response.data.hasOwnProperty('base_url')) {
+                                this.$message.error(response.data.base_url[0]);
+                            }
+                        }
                     })
                     .catch(error => {
                         this.$message.error('服务器错误');
