@@ -39,10 +39,22 @@ let router = new Router({
 					name: 'envs_add'
 				},
 				{
-					path: 'envs_list',
+					path: '/envs_list',
 					component: resolve => require(['@/components/page/EnvList.vue'], resolve),
 					meta: { title: '环境列表' },
 					name: 'envs_list'
+				},
+				{
+					path: '/builtIn_list',
+					component: resolve => require(['@/components/page/BuiltInList.vue'], resolve),
+					meta: { title: '函数列表' },
+					name: 'builtIn_list'
+				},
+				{
+					path: '/builtIn_edit/:id',
+					component: resolve => require(['@/components/page/BuiltInEdit.vue'], resolve),
+					meta: { title: '函数编辑' },
+					name: 'builtIn_edit'
 				},
 				{
 					path: '/interfaces_list',
