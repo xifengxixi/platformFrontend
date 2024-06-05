@@ -13,7 +13,7 @@ export default {
         return http.post(`/projects/batch_delete/`, params)
     },
 
-    // 通过项目名称获取项目详情
+    // 通过项目名称获取项目列表
     getList(params) {
         return http.post(`/projects/get_list/?page=` + params.page + '&size=' + params.size, params)
     },

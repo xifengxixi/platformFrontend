@@ -12,11 +12,7 @@
                 <el-button type="primary" icon="el-icon-search" @click="getData">搜索</el-button>
                 <el-button type="primary" icon="el-icon-refresh-left" @click="reset">重置</el-button>
             </div>
-            <el-table ref="multipleTable" :data="tableData" style="width: 100%"
-                @selection-change="handleSelectionChange" stripe border>
-
-                <el-table-column type="selection" width="55">
-                </el-table-column>
+            <el-table ref="multipleTable" :data="tableData" style="width: 100%" stripe border>
 
                 <el-table-column type="index" label="序号" width="55">
                 </el-table-column>
