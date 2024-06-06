@@ -86,11 +86,11 @@ export default {
                     .then(response => {
                         if (response.status === 201) {
                             this.$message.success('新增项目成功！');
-                            // 1秒后重置
-                            setTimeout(function () {
-                                // that.$router.go();
-                                that.resetForm('form');
-                            }, 1000);
+                            // // 1秒后重置
+                            // setTimeout(function () {
+                            //     // that.$router.go();
+                            //     that.resetForm('form');
+                            // }, 1000);
                         }
                         else if (response.status === 400) {
                             if (response.data.hasOwnProperty('name')) {

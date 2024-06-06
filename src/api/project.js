@@ -37,6 +37,11 @@ export default {
     createProject(params) {
         return http.post(`/projects/`, params)
     },
+
+    // 获取项目名称和id
+    names() {
+        return http.get(`/projects/names/`)
+    }
 }
 
 

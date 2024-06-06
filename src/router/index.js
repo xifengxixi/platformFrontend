@@ -63,6 +63,12 @@ let router = new Router({
 					name: 'interfaces_list'
 				},
 				{
+					path: '/interfaces_add',
+					component: resolve => require(['@/components/page/InterfaceAdd.vue'], resolve),
+					meta: { title: '接口新增' },
+					name: 'interfaces_add'
+				},
+				{
 					path: '/testsuits_list',
 					component: resolve => require(['@/components/page/TestsuitList.vue'], resolve),
 					meta: { title: '套件列表' },

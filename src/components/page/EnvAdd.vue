@@ -71,9 +71,9 @@ export default {
                     .then(response => {
                         if (response.status === 201) {
                             this.$message.success('新建环境成功');
-                            setTimeout(function() {
-                                that.resetForm('form');
-                            }, 1000)
+                            // setTimeout(function() {
+                            //     that.resetForm('form');
+                            // }, 1000)
                         }
                         else if (response.status === 400) {
                             if (response.data.hasOwnProperty('name')) {

@@ -20,7 +20,7 @@ export default {
 
     // 编辑接口
     editInterface(id, params) {
-        return http.put(`/interfaces/${id}/`, params)
+        return http.patch(`/interfaces/${id}/`, params)
     },
 
     // 删除接口
