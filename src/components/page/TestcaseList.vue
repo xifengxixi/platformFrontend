@@ -13,6 +13,7 @@
                 <el-input v-model="search_project" placeholder="请输入项目名称" class="handle-input mr10"></el-input>
                 <el-input v-model="search_interface" placeholder="请输入接口名称" class="handle-input mr10"></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="getData">搜索</el-button>
+                <el-button type="primary" icon="el-icon-refresh-left" @click="reset">重置</el-button>
             </div>
             <el-table :data="tableData" border class="table" ref="multipleTable"
                 @selection-change="handleSelectionChange" stripe>
@@ -86,6 +87,9 @@
 </template>
 
 <script>
+import api from '@/api/testcase'
+import api_env from '@/api/env'
+
 export default {
     data() {
         return {
@@ -149,8 +153,16 @@ export default {
             api.batchDelete({
                 ids: this.del_list
             }).then(response => {
-                this.$message.success('删除成功');
-                this.getData();
+                if (response.status === 204) {
+                    this.$message.success('删除成功');
+                    this.getData();
+                }
+                else if (response.status === 400) {
+                    this.$message.error('参数错误');
+                } 
+                else if (response.status === 500) {
+                    this.$message.error('服务器错误');
+                }
             }).catch(error => {
                 this.$message.error('服务器错误');
             })
@@ -257,7 +269,7 @@ export default {
 }
 
 .handle-input {
-    width: 300px;
+    width: 200px;
     display: inline-block;
 }
 
