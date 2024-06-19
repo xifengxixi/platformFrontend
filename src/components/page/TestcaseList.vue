@@ -254,7 +254,11 @@ export default {
                     this.delVisible = false;
                     this.$message.error('服务器错误')
                 })
-        }
+        },
+
+        linkTo(id) {
+            this.$router.push({ path: `/testcases_edit/${id}` });
+        },
     }
 }
 </script>
