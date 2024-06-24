@@ -14,12 +14,16 @@
                             <el-row :gutter="20">
                                 <el-col :span="24">
                                     <el-form-item label="选择项目">
-                                        <el-select v-model="selected_project_id" placeholder="请选择"
+                                        <!-- <el-select v-model="selected_project_id" placeholder="请选择项目"
                                             @change="getInterfacesByProjectID(selected_project_id)">
-                                            <el-option v-for="(item, key) in project_names" :key="key"
-                                                :label="item.projectname" :value="item.id">
+                                            <el-option v-for="(item, key) in project_list" :key="key" :label="item.name"
+                                                :value="item.id">
                                             </el-option>
-                                        </el-select>
+                                        </el-select> -->
+                                        <el-autocomplete class="inline-input" v-model="project_name"
+                                            :fetch-suggestions="querySearchProject" placeholder="请输入选择项目"
+                                            @select="handleSelectProject" value-key="name" clearable>
+                                        </el-autocomplete>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
@@ -27,22 +31,30 @@
                             <el-row :gutter="20">
                                 <el-col :span="12">
                                     <el-form-item label="选择接口">
-                                        <el-select v-model="selected_interface_id" placeholder="请选择"
+                                        <!-- <el-select v-model="selected_interface_id" placeholder="请选择"
                                             @change="getConfTestcaseByInterfaceID(selected_interface_id)">
                                             <el-option v-for="(item, key) in interfaces" :key="key" :label="item.name"
                                                 :value="item.id">
                                             </el-option>
-                                        </el-select>
+                                        </el-select> -->
+                                        <el-autocomplete class="inline-input" v-model="interface_name"
+                                            :fetch-suggestions="querySearchInterface" placeholder="请输入选择接口"
+                                            @select="handleSelectInterface" value-key="name" clearable>
+                                        </el-autocomplete>
                                     </el-form-item>
                                 </el-col>
 
                                 <el-col :span="12">
                                     <el-form-item label="选择配置">
-                                        <el-select v-model="selected_configure_id" placeholder="请选择" clearable>
+                                        <!-- <el-select v-model="selected_configure_id" placeholder="请选择" clearable>
                                             <el-option v-for="(item, key) in configures" :key="key" :label="item.name"
                                                 :value="item.id">
                                             </el-option>
-                                        </el-select>
+                                        </el-select> -->
+                                        <el-autocomplete class="inline-input" v-model="configure_name"
+                                            :fetch-suggestions="querySearchConfigure" placeholder="请输入选择配置"
+                                            @select="handleSelectConfigure" value-key="name" clearable>
+                                        </el-autocomplete>
                                     </el-form-item>
                                 </el-col>
 
@@ -403,8 +415,102 @@
 </template>
 
 <script>
-export default {
+import api_project from '@/api/project'
+import api_interface from '@/api/interface'
 
+export default {
+    data() {
+        return {
+            project_name: "",
+            project_id: "",
+            project_list: [],
+            interface_name: "",
+            interface_id: "",
+            interface_list: [],
+            configure_name: "",
+            configure_id: "",
+            configure_list: [],
+        }
+    },
+    created() {
+        this.getProjectNames();
+    },
+    methods: {
+        getProjectNames() {
+            api_project.names()
+            .then(response => {
+                this.project_list = response.data
+            })
+            .catch(error => {
+                this.$message.error('服务器错误')
+            })
+        },
+
+        getInterfaceNames() {
+            api_project.interfaces(this.project_id)
+            .then(response => {
+                this.interface_list = response.data
+            })
+            .catch(error => {
+                this.$message.error('服务器错误')
+            })
+        },
+
+        getConfigureNames() {
+            api_interface.configures(this.interface_id)
+            .then(response => {
+                if (response.status === 200) {
+                    this.configure_list = response.data
+                }
+                else if (response.status === 404) {
+                    this.$message.error('当前接口下没有配置')
+                }
+            })
+            .catch(error => {
+                this.$message.error('服务器错误')
+            })
+        },
+
+        createFilter(queryString) {
+            return (item) => {
+                return (item.name.toLowerCase().includes(queryString.toLowerCase()));
+            };
+        },
+
+        querySearchProject(queryString, cb) {
+            var project_list = this.project_list;
+            var results = queryString ? project_list.filter(this.createFilter(queryString)) : project_list;
+            cb(results);
+        },
+        handleSelectProject(item) {
+            this.project_name = item.name;
+            this.project_id = item.id;
+            this.getInterfaceNames();
+        },
+
+        querySearchInterface(queryString, cb) {
+            // this.getInterfaceNames();
+            var interface_list = this.interface_list;
+            var results = queryString ? interface_list.filter(this.createFilter(queryString)) : interface_list;
+            cb(results);
+        },
+        handleSelectInterface(item) {
+            this.interface_name = item.name;
+            this.interface_id = item.id;
+            this.getConfigureNames();
+        },
+
+        querySearchConfigure(queryString, cb) {
+            // this.getConfigureNames();
+            var configure_list = this.configure_list;
+            var results = queryString ? interface_list.filter(this.createFilter(queryString)) : configure_list;
+            cb(results);
+        },
+        handleSelectConfigure(item) {
+            this.configure_name = item.name;
+            this.configure_id = item.id;
+        },
+    },
 }
 </script>
 

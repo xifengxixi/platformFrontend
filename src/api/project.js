@@ -41,7 +41,12 @@ export default {
     // 获取项目名称和id
     names() {
         return http.get(`/projects/names/`)
-    }
+    },
+
+    // 通过项目id获取项目下接口列表
+    interfaces(id) {
+        return http.get(`/projects/${id}/interfaces/`)
+    },
 }
 
 

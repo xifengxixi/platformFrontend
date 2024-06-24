@@ -32,6 +32,11 @@ export default {
     createInterface(params) {
         return http.post(`/interfaces/`, params)
     },
+
+    // 通过接口id获取配置列表
+    configures(id) {
+        return http.get(`/interfaces/${id}/configures/`)
+    },
 }
 
 
