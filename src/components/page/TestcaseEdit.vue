@@ -9,17 +9,11 @@
         <div class="container">
             <el-tabs type="border-card">
                 <el-tab-pane label="基本信息">
-                    <div class="form-box">
+                    <div class="form-box" style="width: 1000px;">
                         <el-form label-position="left" label-width="80px">
                             <el-row :gutter="20">
                                 <el-col :span="24">
                                     <el-form-item label="选择项目">
-                                        <!-- <el-select v-model="selected_project_id" placeholder="请选择项目"
-                                            @change="getInterfacesByProjectID(selected_project_id)">
-                                            <el-option v-for="(item, key) in project_list" :key="key" :label="item.name"
-                                                :value="item.id">
-                                            </el-option>
-                                        </el-select> -->
                                         <el-autocomplete class="inline-input" v-model="project_name"
                                             :fetch-suggestions="querySearchProject" placeholder="请输入选择项目"
                                             @select="handleSelectProject" value-key="name" clearable>
@@ -31,12 +25,6 @@
                             <el-row :gutter="20">
                                 <el-col :span="12">
                                     <el-form-item label="选择接口">
-                                        <!-- <el-select v-model="selected_interface_id" placeholder="请选择"
-                                            @change="getConfTestcaseByInterfaceID(selected_interface_id)">
-                                            <el-option v-for="(item, key) in interfaces" :key="key" :label="item.name"
-                                                :value="item.id">
-                                            </el-option>
-                                        </el-select> -->
                                         <el-autocomplete class="inline-input" v-model="interface_name"
                                             :fetch-suggestions="querySearchInterface" placeholder="请输入选择接口"
                                             @select="handleSelectInterface" value-key="name" clearable>
@@ -46,11 +34,6 @@
 
                                 <el-col :span="12">
                                     <el-form-item label="选择配置">
-                                        <!-- <el-select v-model="selected_configure_id" placeholder="请选择" clearable>
-                                            <el-option v-for="(item, key) in configures" :key="key" :label="item.name"
-                                                :value="item.id">
-                                            </el-option>
-                                        </el-select> -->
                                         <el-autocomplete class="inline-input" v-model="configure_name"
                                             :fetch-suggestions="querySearchConfigure" placeholder="请输入选择配置"
                                             @select="handleSelectConfigure" value-key="name" clearable>
@@ -61,344 +44,31 @@
                             </el-row>
 
                             <el-row :gutter="100">
-                                <el-col :span="12">
-                                    <div class="drag-box-item">
-                                        <div class="item-title">待选前置用例</div>
-                                        <draggable v-model="unselected" :options="dragOptions"
-                                            @change="unchangeResult()">
-                                            <transition-group tag="div" class="item-ul">
-                                                <div v-for="item in unselected" class="drag-list" :key="item.id"
-                                                    :value="item.id">
-                                                    {{ item.name }}
-                                                </div>
-                                            </transition-group>
-                                        </draggable>
-                                    </div>
-                                </el-col>
+                                <el-col :span="24">
+                                    <div style="text-align: left">
+                                        <el-transfer style="text-align: left; display: inline-block;"
+                                            :render-content="renderFunc" v-model="selected_testcase_id" filterable
+                                            :titles="['待选前置用例', '已选前置用例']"
+                                            :format="{noChecked: '${total}', hasChecked: '${checked}/${total}'}"
+                                            :props="{key: 'id', label: 'name',}" @change="handleChange"
+                                            :data="testcase_list">
 
-                                <el-col :span="12">
-                                    <div class="drag-box-item">
-                                        <div class="item-title">已选前置用例</div>
-                                        <draggable v-model="selected" :options="dragOptions" @change="changeResult()">
-                                            <transition-group tag="div" class="item-ul">
-                                                <div v-for="item in selected" class="drag-list" :key="item.id"
-                                                    :value="item.id">
-                                                    {{ item.name }}
-                                                </div>
-                                            </transition-group>
-                                        </draggable>
+                                            <span slot-scope="{ option }">{{ option.name }}</span>
+
+                                            <el-button class="transfer-footer" slot="left-footer"
+                                                style="margin-left: 10px;" size="small"
+                                                @click="resetSorting">重置排序</el-button>
+
+                                            <el-button class="transfer-footer" slot="right-footer"
+                                                style="margin-left: 10px;" size="small"
+                                                @click="resetSorting">重置排序</el-button>
+                                        </el-transfer>
                                     </div>
                                 </el-col>
                             </el-row>
-
                         </el-form>
                     </div>
                 </el-tab-pane>
-
-                <!-- <el-tab-pane label="请求信息">
-                    <el-form style="margin: 0 0 0 10px">
-                        <el-form-item>
-                            <el-input placeholder="Enter request URL" v-model="apiMsgData.url" class="input-with-select"
-                                style="width: 80%;margin-right: 5px">
-                                <el-select v-model="apiMsgData.method" size="medium" style="width: 100px" slot="prepend"
-                                    placeholder="选择请求方式">
-                                    <el-option v-for="item in methods" :key="item" :value="item" :label="item">
-                                    </el-option>
-                                </el-select>
-                                <el-button slot="append" type="primary" @click="ParamViewStatus = !ParamViewStatus">
-                                    Params
-                                </el-button>
-                            </el-input>
-                        </el-form-item>
-                    </el-form>
-
-                    <el-table :data="apiMsgData.param" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }"
-                        style="width:98.2%;margin-top:-20px;left: 10px;" size="mini" :show-header="false"
-                        v-show="this.ParamViewStatus">
-                        <el-table-column property="key" label="Key" header-align="center" min-width="80">
-                            <template slot-scope="scope">
-                                <el-input v-model="scope.row.key" size="mini" placeholder="key">
-                                </el-input>
-                            </template>
-                        </el-table-column>
-                        <el-table-column property="value" label="Value" header-align="center" min-width="200">
-                            <template slot-scope="scope">
-                                <el-input v-model="scope.row.value" size="mini" placeholder="value"
-                                    :id="'param_input' + scope.$index" type="textarea" rows=1
-                                    @focus="showLine('param_input', scope.$index)" @input="changeLine()"
-                                    @blur="resetLine(scope.$index)" resize="none">
-                                </el-input>
-                            </template>
-                        </el-table-column>
-                        <el-table-column property="value" label="操作" header-align="center" width="60">
-                            <template slot-scope="scope">
-                                <el-button type="danger" icon="el-icon-delete" size="mini"
-                                    @click.native="delTableRow('param', scope.$index)">
-                                </el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-
-                    <el-tabs style="margin: 0 0 0 10px" v-model="bodyShow">
-                        <el-tab-pane label="Headers" name="first">
-                            <el-table :data="apiMsgData.header" size="mini" stripe :show-header="false"
-                                class="h-b-e-a-style" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-                                <el-table-column property="key" label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini" placeholder="key">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column property="value" label="Value" header-align="center" minWidth="200">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.value" size="mini" placeholder="value">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('header', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                        <el-tab-pane label="Body" name="second" :disabled="apiMsgData.method === 'GET'">
-                            <el-form :inline="true" class="demo-form-inline" style="margin-top: 10px">
-                                <el-radio-group v-model="apiMsgData.choiceType">
-                                    <el-radio label="data">form-data</el-radio>
-                                    <el-radio label="json">json</el-radio>
-                                </el-radio-group>
-                                <el-button type="primary" size="mini" v-show="apiMsgData.choiceType === 'json'"
-                                    style="margin-left:20px" @click="formatData()">格式化
-
-                                </el-button>
-                            </el-form>
-                            <hr style="height:1px;border:none;border-top:1px solid rgb(241, 215, 215);" />
-
-                            <div v-if="apiMsgData.choiceType === 'json'">
-                                <div style="border:1px solid rgb(234, 234, 234) ">
-                                    <el-container>
-                                        <editor v-contextmenu:contextmenu style="font-size: 15px"
-                                            v-model="apiMsgData.jsonVariable" @init="editorInit" lang="json"
-                                            theme="chrome" width="100%" height="575px" :options="{}">
-                                        </editor>
-                                    </el-container>
-
-                                </div>
-                            </div>
-                            <el-table :data="apiMsgData.variable" size="mini" stripe :show-header="false" height="500"
-                                style="background-color: rgb(250, 250, 250)" v-if="apiMsgData.choiceType === 'data'"
-                                :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-                                <el-table-column label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini" placeholder="key">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="type" header-align="center" width="100">
-                                    <template slot-scope="scope">
-                                        <el-select v-model="scope.row.param_type" size="mini">
-                                            <el-option v-for="item in paramTypes" :key="item" :value="item">
-                                            </el-option>
-                                        </el-select>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="Value" header-align="center" minWidth="200">
-                                    <template slot-scope="scope">
-                                        <div>
-                                            <el-input v-model="scope.row.value" :id="'data_input' + scope.$index"
-                                                type="textarea" rows=1 @focus="showLine('data_input', scope.$index)"
-                                                @input="changeLine()" @blur="resetLine()" size="mini" resize="none"
-                                                placeholder="value">
-                                            </el-input>
-                                        </div>
-
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('variable', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                        <el-tab-pane label="Extract" name="third">
-                            <el-table :data="apiMsgData.extract" size="mini" stripe :show-header="false"
-                                class="h-b-e-a-style" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-                                <el-table-column property="key" label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini" placeholder="key">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="Value" header-align="center" minWidth="200">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.value" size="mini" placeholder="value">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('extract', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                        <el-tab-pane label="Assert" name="fourth">
-                            <el-table :data="apiMsgData.validate" size="mini" stripe :show-header="false"
-                                class="h-b-e-a-style" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-
-                                <el-table-column property="key" label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini" placeholder="check">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="Comparator" header-align="center" width="200">
-                                    <template slot-scope="scope">
-                                        <el-autocomplete class="inline-input" v-model="scope.row.comparator"
-                                            :fetch-suggestions="querySearch" placeholder="请选择"
-                                            size="mini"></el-autocomplete>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column label="type" header-align="center" width="100">
-                                    <template slot-scope="scope">
-                                        <el-select v-model="scope.row.param_type" size="mini">
-                                            <el-option v-for="item in paramTypes" :key="item" :value="item">
-                                            </el-option>
-                                        </el-select>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="Value" header-align="center" minWidth="200">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.value" size="mini" placeholder="expect">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('validate', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                    </el-tabs>
-
-                </el-tab-pane>
-
-                <el-tab-pane label="环境变量|参数化|请求钩子">
-
-                    <el-tabs style="margin: 0 0 0 10px" v-model="otherShow">
-                        <el-tab-pane label="环境变量" name="first">
-                            <el-table :data="apiMsgData.globalVar" size="mini" stripe :show-header="false"
-                                class="h-b-e-a-style" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-                                <el-table-column property="key" label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini" placeholder="key">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column label="type" header-align="center" width="100">
-                                    <template slot-scope="scope">
-                                        <el-select v-model="scope.row.param_type" size="mini">
-                                            <el-option v-for="item in paramTypes" :key="item" :value="item">
-                                            </el-option>
-                                        </el-select>
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column property="value" label="Value" header-align="center" minWidth="200">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.value" size="mini" placeholder="value">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('globalVar', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                        <el-tab-pane label="参数化" name="second">
-                            <el-table :data="apiMsgData.parameterized" size="mini" stripe :show-header="false"
-                                class="h-b-e-a-style" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-                                <el-table-column property="key" label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini"
-                                            placeholder="key 或者 key1-key2-key3">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-
-                                <el-table-column property="value" label="Value" header-align="center" minWidth="200">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.value" size="mini"
-                                            placeholder='["value1", "value2] 或者 [["v1", "v2", "v3"],["v11","v22", "v33"]] 或者 ${函数名(参数, 参数, ...)}'>
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('parameterized', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                        <el-tab-pane label="setup_hooks" name="third">
-                            <el-table :data="apiMsgData.setupHooks" size="mini" stripe :show-header="false"
-                                class="h-b-e-a-style" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-                                <el-table-column property="key" label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini" placeholder="key">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('setupHooks', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                        <el-tab-pane label="teardown_hooks" name="fourth">
-                            <el-table :data="apiMsgData.teardownHooks" size="mini" stripe :show-header="false"
-                                class="h-b-e-a-style" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }">
-                                <el-table-column property="key" label="Key" header-align="center" minWidth="100">
-                                    <template slot-scope="scope">
-                                        <el-input v-model="scope.row.key" size="mini" placeholder="key">
-                                        </el-input>
-                                    </template>
-                                </el-table-column>
-                                <el-table-column property="value" label="操作" header-align="center" width="80">
-                                    <template slot-scope="scope">
-                                        <el-button type="danger" icon="el-icon-delete" size="mini"
-                                            @click.native="delTableRow('teardownHooks', scope.$index)">
-                                        </el-button>
-                                    </template>
-                                </el-table-column>
-                            </el-table>
-                        </el-tab-pane>
-                    </el-tabs>
-
-                </el-tab-pane> -->
             </el-tabs>
 
 
@@ -414,7 +84,9 @@
     </div>
 </template>
 
+
 <script>
+import api from '@/api/testcase'
 import api_project from '@/api/project'
 import api_interface from '@/api/interface'
 
@@ -430,12 +102,113 @@ export default {
             configure_name: "",
             configure_id: "",
             configure_list: [],
+
+            testcase_list: [],
+            testcase_list_copy: [], // 用于备份原始数据
+            subBtnDisable: true, // 按钮状态
+            testcase_list_right: [],
+            testcase_list_left: [],
+            selected_testcase_id: [],
+            formIndex: -1,
+            formOption: null,
         }
     },
     created() {
         this.getProjectNames();
     },
     methods: {
+        renderFunc(h, option) {
+            let temp = `${option.name}`
+            return h('span', {
+                on: {
+                    'dragstart': ($event) => {
+                        this.formIndex = $event.target.__vue__.option.weight - 1
+                        this.formOption = $event.target.__vue__.option
+                    },
+                    'dragover': ($event) => {
+                        $event.preventDefault();
+                        $event.dataTransfer.effectAllowed = "move";
+
+                    },
+                    'drop': ($event) => {
+                        let targetIndex = $event.target.__vue__.option.weight - 1;
+
+                        // 如果拖拽至当前元素之前，则减一处理
+                        if (this.formIndex < targetIndex) {
+                            targetIndex--;
+                        }
+
+                        // 将拖动的元素插入到目标位置
+                        let movedItem = this.testcase_list.splice(this.formIndex, 1)[0];
+                        this.testcase_list.splice(targetIndex, 0, movedItem);
+
+
+                        // 重新设置 weight 值
+                        this.testcase_list.forEach((item, index) => {
+                            item.weight = index + 1;
+                        });
+
+                        // 通过 weight 值对 selected_testcase_id 进行排序
+                        this.selected_testcase_id.sort((a, b) => {
+                            let a_index = this.testcase_list.findIndex(item => item.id === a);
+                            let b_index = this.testcase_list.findIndex(item => item.id === b);
+                            return a_index - b_index;
+                        });
+
+                        this.subBtnDisable = false;
+                        console.log(this.selected_testcase_id);
+                    }
+                },
+                attrs: {
+                    draggable: true
+                }
+            }, temp)
+        },
+        resetSorting() {
+            this.testcase_list = JSON.parse(JSON.stringify(this.testcase_list_copy)); // 还原原始数据
+
+            this.testcase_list.sort((a, b) => a.weight - b.weight);
+            this.testcase_list.forEach((item, index) => {
+                item.weight = index + 1;
+            });
+            // 通过 weight 值对 selected_testcase_id 进行排序
+            this.selected_testcase_id.sort((a, b) => {
+                let a_index = this.testcase_list.findIndex(item => item.id === a);
+                let b_index = this.testcase_list.findIndex(item => item.id === b);
+                return a_index - b_index;
+            });
+            console.log(this.selected_testcase_id);
+
+            this.subBtnDisable = true; // 标记未做修改状态
+        },
+        toggleSelection(action, side) {
+            const target = side === 'left' ? this.testcase_list_left : this.testcase_list_right;
+            console.log(target);
+            if (action === 'Invert') {
+                target.forEach(item => {
+                    item.selected = !item.selected;
+                });
+            } else if (action === 'Cancel') {
+                target.forEach(item => {
+                    item.selected = false;
+                });
+            }
+        },
+
+        handleChange(value, direction, movedKeys){
+            let result_item_right = [];
+            let result_item_left = [];
+            this.testcase_list.forEach(item => {
+                if (value.includes(item.id)) {
+                    result_item_right.push(item);
+                } else {
+                    result_item_left.push(item);
+                }
+            });
+            this.testcase_list_right = result_item_right;
+            this.testcase_list_left = result_item_left;
+        },
+
         getProjectNames() {
             api_project.names()
             .then(response => {
@@ -498,6 +271,7 @@ export default {
             this.interface_name = item.name;
             this.interface_id = item.id;
             this.getConfigureNames();
+            this.getTestcasesByInterfaceId();
         },
 
         querySearchConfigure(queryString, cb) {
@@ -509,6 +283,31 @@ export default {
         handleSelectConfigure(item) {
             this.configure_name = item.name;
             this.configure_id = item.id;
+        },
+
+        getTestcasesByInterfaceId() {
+            api.names({'interface_id': this.interface_id})
+            .then(response => {
+                this.testcase_list = response.data;
+                this.testcase_list = this.formatTestcaseList(this.testcase_list);
+                this.testcase_list_copy = JSON.parse(JSON.stringify(this.testcase_list)); // 备份原始数据
+                this.testcase_list_left = this.testcase_list;
+            })
+            .catch(error => {
+                this.$message.error('服务器错误');
+            })
+        },
+
+        formatTestcaseList(list) {
+            let weight = 1;
+            return list.map(item => (
+                    {
+                        weight: weight++,
+                        id: item.id,
+                        name: item.name,
+                    }
+                )
+            )
         },
     },
 }
@@ -591,5 +390,9 @@ export default {
 .h-b-e-a-style {
     background-color: rgb(250, 250, 250);
     /*min-height: 430px;*/
+}
+
+.el-transfer-panel {
+  width: 300px;
 }
 </style>

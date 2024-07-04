@@ -31,4 +31,9 @@ export default {
     createTestcase(params) {
         return http.post(`/testcases/`, params)
     },
+
+    // 通过 interface_id 获取用例列表
+    names(params) {
+        return http.post(`/testcases/names/`, params)
+    },
 }
