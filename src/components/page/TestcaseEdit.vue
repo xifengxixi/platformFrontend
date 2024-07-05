@@ -23,7 +23,7 @@
                             </el-row>
 
                             <el-row :gutter="20">
-                                <el-col :span="12">
+                                <el-col :span="12" style="width: 40%">
                                     <el-form-item label="选择接口">
                                         <el-autocomplete class="inline-input" v-model="interface_name"
                                             :fetch-suggestions="querySearchInterface" placeholder="请输入选择接口"
@@ -69,6 +69,52 @@
                         </el-form>
                     </div>
                 </el-tab-pane>
+
+                <el-tab-pane label="请求信息">
+
+                    <el-form style="margin: 0 0 0 10px">
+                        <el-form-item>
+                            <el-input placeholder="请输入请求URL" v-model="apiMsgData.url" class="input-with-select"
+                                style="width:80%; margin-right:5px">
+                                <el-select v-model="apiMsgData.method" size="medium" style="width: 100px"
+                                    slot="prepend">
+                                    <el-option v-for="item in methods" :key="item" :value="item"
+                                        :label="item"></el-option>
+                                </el-select>
+                                <el-button slot="append" type="primary"
+                                    @click="ParamViewStatus = !ParamViewStatus">Params</el-button>
+                            </el-input>
+                        </el-form-item>
+                    </el-form>
+
+                    <el-table :data="apiMsgData.param" :row-style="{ 'background-color': 'rgb(250, 250, 250)' }"
+                        style="width:98%; margin-top:-20px; left:10px;" size="mini" :show-header="false"
+                        v-show="this.ParamViewStatus">
+                        <el-table-column property="key" label="Key" header-align="center" min-width="80">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.key" size="mini" placeholder="key">
+                                </el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column property="value" label="Value" header-align="center" min-width="200">
+                            <template slot-scope="scope">
+                                <el-input v-model="scope.row.value" size="mini" placeholder="value"
+                                    :id="'param_input' + scope.$index" type="textarea" rows=1
+                                    @focus="showLine('param_input', scope.$index)" @input="changeLine()"
+                                    @blur="resetLine(scope.$index)" resize="none">
+                                </el-input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column property="value" label="操作" header-align="center" width="60">
+                            <template slot-scope="scope">
+                                <el-button type="danger" icon="el-icon-delete" size="mini"
+                                    @click.native="delTableRow('param', scope.$index)">
+                                </el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                </el-tab-pane>
             </el-tabs>
 
 
@@ -93,6 +139,7 @@ import api_interface from '@/api/interface'
 export default {
     data() {
         return {
+            // 基本信息
             project_name: "",
             project_id: "",
             project_list: [],
@@ -104,13 +151,35 @@ export default {
             configure_list: [],
 
             testcase_list: [],
-            testcase_list_copy: [], // 用于备份原始数据
-            subBtnDisable: true, // 按钮状态
+            testcase_list_copy: [],
+            subBtnDisable: true,
             testcase_list_right: [],
             testcase_list_left: [],
             selected_testcase_id: [],
             formIndex: -1,
             formOption: null,
+
+            // 请求信息
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+            ParamViewStatus: false,
+            apiMsgData: {
+                id: null,
+                method: 'POST',
+                name: "",
+                url: '',
+                choiceType: 'json',
+                param: [{key: null, value: null}],
+                header: [{key: null, value: null}],
+                variable: [{key: null, value: null, param_type: 'string'}],
+                jsonVariable: '',
+                extract: [{key: null, value: null}],
+                validate: [{key: null, value: null, comparator: 'equals', param_type: 'string'}],
+
+                globalVar: [{key: null, value: null, param_type: 'string'}],
+                parameterized: [{key: null, value: null}],
+                setupHooks: [{key: null}],
+                teardownHooks: [{key: null}],
+            },
         }
     },
     created() {
