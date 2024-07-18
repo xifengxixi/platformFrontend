@@ -34,10 +34,11 @@
 
                                 <el-col :span="12">
                                     <el-form-item label="选择配置">
-                                        <el-autocomplete class="inline-input" v-model="configure_name"
-                                            :fetch-suggestions="querySearchConfigure" placeholder="请输入选择配置"
-                                            @select="handleSelectConfigure" value-key="name" clearable>
-                                        </el-autocomplete>
+                                        <el-select v-model="selected_configure_id" placeholder="请选择配置" clearable>
+                                            <el-option v-for="(item, key) in configure_list" :key="key" :label="item.name"
+                                                :value="item.id">
+                                            </el-option>
+                                        </el-select>
                                     </el-form-item>
                                 </el-col>
 
@@ -47,7 +48,7 @@
                                 <el-col :span="24">
                                     <div style="text-align: left">
                                         <el-transfer style="text-align: left; display: inline-block;"
-                                            :render-content="renderFunc" v-model="selected_testcase_id" filterable
+                                            :render-content="renderFunc" v-model="selected_pre_testcase_id" filterable
                                             :titles="['待选前置用例', '已选前置用例']"
                                             :format="{noChecked: '${total}', hasChecked: '${checked}/${total}'}"
                                             :props="{key: 'id', label: 'name',}" @change="handleChange"
@@ -375,7 +376,6 @@
                 </el-tab-pane>
             </el-tabs>
 
-
             <el-row>
                 <el-col :span="2">
                     <el-button type="primary" @click="onSubmit()">提交</el-button>
@@ -385,6 +385,40 @@
                 </el-col>
             </el-row>
         </div>
+
+        <!-- 编辑弹出框 -->
+        <el-dialog title="编辑用例" :visible.sync="editVisible" width="28%" center>
+            <el-form label-width="120px">
+                <el-form-item label="用例名称" required>
+                    <el-input v-model="testcase_name" clearable></el-input>
+                </el-form-item>
+
+                <el-form-item label="编写人员" required>
+                    <el-input v-model="author" clearable></el-input>
+                </el-form-item>
+
+                <el-form-item label="选择项目" required>
+                    <el-select v-model="selected_project_id" placeholder="请选择"
+                        @change="getInterfaceNames(selected_project_id)">
+                        <el-option v-for="(item, key) in project_list" :key="key" :label="item.name" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+                <el-form-item label="选择接口" required>
+                    <el-select v-model="selected_interface_id" placeholder="请选择">
+                        <el-option v-for="(item, key) in interface_list" :key="key" :label="item.name" :value="item.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+            </el-form>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="editVisible = false">取 消</el-button>
+                <el-button type="primary" @click="saveEdit">确 定</el-button>
+            </span>
+        </el-dialog>
+
     </div>
 </template>
 
@@ -404,20 +438,20 @@ export default {
             interface_name: "",
             interface_id: "",
             interface_list: [],
-            configure_name: "",
-            configure_id: "",
             configure_list: [],
+            selected_configure_id: null,
 
             testcase_list: [],
             testcase_list_copy: [],
             subBtnDisable: true,
             testcase_list_right: [],
             testcase_list_left: [],
-            selected_testcase_id: [],
+            selected_pre_testcase_id: [],
             formIndex: -1,
             formOption: null,
 
             // 请求信息
+            types: ['data', 'json', 'params'],
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
             ParamViewStatus: false,
             apiMsgData: {
@@ -451,9 +485,17 @@ export default {
                 { 'value': 'length_less_than_or_equals' }
             ],
             cell: Object(),
+
+            // 编辑弹出框
+            current_testcase_id: null,
+            editVisible: false,
+            testcase_name: "",
+            author: "",
         }
     },
     created() {
+        this.current_testcase_id = this.$route.params.id;
+        this.getTestcaseDetail();
         this.getProjectNames();
     },
     components: {
@@ -491,15 +533,15 @@ export default {
                             item.weight = index + 1;
                         });
 
-                        // 通过 weight 值对 selected_testcase_id 进行排序
-                        this.selected_testcase_id.sort((a, b) => {
+                        // 通过 weight 值对 selected_pre_testcase_id 进行排序
+                        this.selected_pre_testcase_id.sort((a, b) => {
                             let a_index = this.testcase_list.findIndex(item => item.id === a);
                             let b_index = this.testcase_list.findIndex(item => item.id === b);
                             return a_index - b_index;
                         });
 
                         this.subBtnDisable = false;
-                        console.log(this.selected_testcase_id);
+                        console.log(this.selected_pre_testcase_id);
                     }
                 },
                 attrs: {
@@ -514,13 +556,13 @@ export default {
             this.testcase_list.forEach((item, index) => {
                 item.weight = index + 1;
             });
-            // 通过 weight 值对 selected_testcase_id 进行排序
-            this.selected_testcase_id.sort((a, b) => {
+            // 通过 weight 值对 selected_pre_testcase_id 进行排序
+            this.selected_pre_testcase_id.sort((a, b) => {
                 let a_index = this.testcase_list.findIndex(item => item.id === a);
                 let b_index = this.testcase_list.findIndex(item => item.id === b);
                 return a_index - b_index;
             });
-            console.log(this.selected_testcase_id);
+            console.log(this.selected_pre_testcase_id);
 
             this.subBtnDisable = true; // 标记未做修改状态
         },
@@ -562,8 +604,8 @@ export default {
             })
         },
 
-        getInterfaceNames() {
-            api_project.interfaces(this.project_id)
+        getInterfaceNames(pro_id) {
+            api_project.interfaces(pro_id)
             .then(response => {
                 this.interface_list = response.data
             })
@@ -572,8 +614,8 @@ export default {
             })
         },
 
-        getConfigureNames() {
-            api_interface.configures(this.interface_id)
+        getConfigureNames(interface_id) {
+            api_interface.configures(interface_id)
             .then(response => {
                 if (response.status === 200) {
                     this.configure_list = response.data
@@ -601,11 +643,10 @@ export default {
         handleSelectProject(item) {
             this.project_name = item.name;
             this.project_id = item.id;
-            this.getInterfaceNames();
+            this.getInterfaceNames(this.project_id);
         },
 
         querySearchInterface(queryString, cb) {
-            // this.getInterfaceNames();
             var interface_list = this.interface_list;
             var results = queryString ? interface_list.filter(this.createFilter(queryString)) : interface_list;
             cb(results);
@@ -613,23 +654,18 @@ export default {
         handleSelectInterface(item) {
             this.interface_name = item.name;
             this.interface_id = item.id;
-            this.getConfigureNames();
-            this.getTestcasesByInterfaceId();
+            this.getConfigureNames(this.interface_id);
+            this.getTestcasesByInterfaceId(this.interface_id);
         },
 
         querySearchConfigure(queryString, cb) {
-            // this.getConfigureNames();
             var configure_list = this.configure_list;
-            var results = queryString ? interface_list.filter(this.createFilter(queryString)) : configure_list;
+            var results = queryString ? configure_list.filter(this.createFilter(queryString)) : configure_list;
             cb(results);
         },
-        handleSelectConfigure(item) {
-            this.configure_name = item.name;
-            this.configure_id = item.id;
-        },
 
-        getTestcasesByInterfaceId() {
-            api.names({'interface_id': this.interface_id})
+        getTestcasesByInterfaceId(interface_id) {
+            api.names({'interface_id': interface_id})
             .then(response => {
                 this.testcase_list = response.data;
                 this.testcase_list = this.formatTestcaseList(this.testcase_list);
@@ -739,6 +775,55 @@ export default {
         querySearchComparator(queryString, cb) {
             // 调用 callback 返回建议列表的数据
             cb(this.comparators);
+        },
+        onSubmit() {
+            if (this.apiMsgData.url.length === 0){
+                this.$message.error('没有输入请求URL');
+                return
+            }
+
+            let validate = this.apiMsgData.validate;
+            validate.splice(-1, 1);
+            if (validate.length === 0) {
+                this.$message.error('未设置Assert断言!');
+                return
+            }
+
+            this.editVisible = true;
+        },
+        getTestcaseDetail() {
+            api.getDetail(this.current_testcase_id)
+            .then(response => {
+                this.author = response.data.author;
+                this.testcase_name = response.data.testcase_name;
+                this.project_id = response.data.selected_project_id;
+                this.getInterfaceNames(this.project_id);
+                this.interface_id = response.data.selected_interface_id;
+                this.getConfigureNames(this.interface_id);
+                this.getTestcasesByInterfaceId(this.interface_id);
+                this.selected_configure_id = response.data.selected_configure_id;
+                this.selected_pre_testcase_id = response.data.selected_testcase_id;
+
+                this.apiMsgData.method = response.data.method;
+                this.apiMsgData.url = response.data.url;
+                this.apiMsgData.param = response.data.param;
+                this.apiMsgData.header = response.data.header;
+                this.apiMsgData.variable = response.data.variable;
+                this.apiMsgData.jsonVariable = response.data.jsonVstiable;
+                if (this.apiMsgData.jsonVariable === 'null') {
+                    this.apiMsgData.choiceType = 'data';
+                };
+
+                this.apiMsgData.extract = response.data.extract;
+                this.apiMsgData.validate = response.data.validate;
+                this.apiMsgData.globalVar = response.data.globalVar;
+                this.apiMsgData.parameterized = response.data.parameterized;
+                this.apiMsgData.setupHooks = response.data.setupHooks;
+                this.apiMsgData.teardownHooks = response.data.teardownHooks;
+            })
+            .catch(error => {
+                this.$message.error('服务器错误')
+            })
         },
     },
 }

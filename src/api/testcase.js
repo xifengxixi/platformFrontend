@@ -36,4 +36,9 @@ export default {
     names(params) {
         return http.post(`/testcases/names/`, params)
     },
+
+    // 获取用例详情
+    getDetail(id, params) {
+        return http.get(`/testcases/${id}/`, params)
+    },
 }
