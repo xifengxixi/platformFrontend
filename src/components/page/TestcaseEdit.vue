@@ -791,6 +791,365 @@ export default {
 
             this.editVisible = true;
         },
+        // 处理数据1, 有param_type, 返回js对象
+        handleData1(request_data, msg){
+            let one_data = {};
+            for(let i = 0; i < request_data.length; i++) {
+                let key = request_data[i].key;
+                if (! key) {
+                    this.$message.error(msg + '的key为空!');
+                    return []
+                }
+                let param_type = request_data[i].param_type;
+                let value = request_data[i].value;
+                if (param_type === 'int') {
+                    if (/^\d+$/.test(value)) {
+                        value = Number(value);
+                    } else {
+                        this.$message.error(msg + '不是整数int类型!');
+                        return []
+                    }
+                } else if (param_type === 'float') {
+                    if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
+                        value = Number(value);
+                    } else {
+                        this.$message.error(msg + '不是小数float类型!');
+                        return []
+                    }
+                } else if (param_type === 'boolean') {
+                    if (/^(true|True|TRUE|1|0)$/.test(value)) {
+                        value = true;
+                    } else if (/^(false|False|FALSE|0)$/.test(value)) {
+                        value = false;
+                    } else {
+                        this.$message.error(msg + '不是布尔boolean类型!');
+                        return []
+                    }
+                }
+                one_data[key] = value;
+            }
+
+            return one_data
+        },
+
+        // 处理数据11, 有param_type, 返回js数组
+        handleData11(request_data, msg){
+            let data_arr = [];
+            for(let i = 0; i < request_data.length; i++) {
+                let key = request_data[i].key;
+                if (! key) {
+                    this.$message.error(msg + '的key为空!');
+                    return []
+                }
+                let param_type = request_data[i].param_type;
+                let value = request_data[i].value;
+                if (param_type === 'int') {
+                    if (/^\d+$/.test(value)) {
+                        value = Number(value);
+                    } else {
+                        this.$message.error(msg + '不是整数int类型!');
+                        return []
+                    }
+                } else if (param_type === 'float') {
+                    if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
+                        value = Number(value);
+                    } else {
+                        this.$message.error(msg + '不是小数float类型!');
+                        return []
+                    }
+                } else if (param_type === 'boolean') {
+                    if (/^(true|True|TRUE|1|0)$/.test(value)) {
+                        value = true;
+                    } else if (/^(false|False|FALSE|0)$/.test(value)) {
+                        value = false;
+                    } else {
+                        this.$message.error(msg + '不是布尔boolean类型!');
+                        return []
+                    }
+                }
+                let one_data = {};
+                one_data[key] = value;
+                data_arr.push(one_data)
+            }
+
+            return data_arr
+        },
+
+        // 处理数据2, 无param_type, 返回js对象
+        handleData2(request_data, msg){
+            let one_data = {};
+            for(let i = 0; i < request_data.length; i++) {
+                let key = request_data[i].key;
+                if (! key) {
+                    this.$message.error(msg + '的key为空!');
+                    return []
+                }
+                one_data[key] = request_data[i].value;
+            }
+            return one_data
+        },
+
+        // 处理数据22, 无param_type, 专门处理参数化、extract, 返回js数组
+        handleData22(request_data, msg){
+            let data_arr = [];
+            for(let i = 0; i < request_data.length; i++) {
+                let key = request_data[i].key;
+                if (! key) {
+                    this.$message.error(msg + '的key为空!');
+                    return []
+                }
+                let value = request_data[i].value;
+                let one_data = {};
+                // 如果参数化值是列表的形式(不是函数也不是csv), 将列表转化为json数组
+                if (/^\[/.test(value)) {
+                    value = JSON.parse(value);
+                }
+                console.log("value: ", value);
+                one_data[key] = value;
+                data_arr.push(one_data)
+            }
+            return data_arr
+        },
+
+        // 处理数据3, 无value, 返回js数组
+        handleData3(request_data, msg){
+            let data_arr = [];
+            for(let i = 0; i < request_data.length; i++) {
+                let key = request_data[i].key;
+                if (! key) {
+                    this.$message.error(msg + '的key为空!');
+                    return []
+                }
+                data_arr.push(key)
+            }
+            return data_arr
+        },
+
+        // 处理数据4, validate数据处理, 返回js数组
+        handleData4(request_data, msg){
+            let data_arr = [];
+            for(let i = 0; i < request_data.length; i++) {
+                let key = request_data[i].key;
+                // console.log('key: ', key);
+                if (! key) {
+                    this.$message.error(msg + '的key为空!');
+                    return []
+                }
+                let param_type = request_data[i].param_type;
+                let value = request_data[i].value;
+                let comparator = request_data[i].comparator;
+
+                if (param_type === 'int') {
+                    if (/^\d+$/.test(value)) {
+                        value = Number(value);
+                    } else {
+                        this.$message.error(msg + '不是整数int类型!');
+                        return []
+                    }
+                } else if (param_type === 'float') {
+                    if (/^[+-]?\d+(\.\d+)?$/.test(value)) {
+                        value = Number(value);
+                    } else {
+                        this.$message.error(msg + '不是小数float类型!');
+                        return []
+                    }
+                } else if (param_type === 'boolean') {
+                    if (/^(true|True|TRUE|1|0)$/.test(value)) {
+                        value = true;
+                    } else if (/^(false|False|FALSE|0)$/.test(value)) {
+                        value = false;
+                    } else {
+                        this.$message.error(msg + '不是布尔boolean类型!');
+                        return []
+                    }
+                }
+                let one_data = {};
+                one_data['check'] = key;
+                one_data['expect'] = value;
+                one_data['comparator'] = comparator;
+                data_arr.push(one_data)
+            }
+
+            return data_arr
+        },
+
+        // 保存编辑
+        saveEdit() {
+            if (this.testcase_name === null){
+                this.$message.error('用例名称不能为空!');
+                return
+            }
+
+            if (this.author === ''){
+                this.$message.error('测试人员名称不能为空!');
+                return
+            }
+
+            if (this.selected_project_id === null || this.selected_interface_id === null){
+                this.$message.error('未选择所属项目或者接口!');
+                return
+            }
+
+            if (this.selected_configure_id === '') {
+                this.selected_configure_id = null;
+            }
+            let include = {"config": this.selected_configure_id, "testcases": this.selected_testcase_id, "untestcases": this.unselected_testcase_id};
+
+            let handle_url = this.apiMsgData.url.trim().split('?', 1)[0];   // 去掉前后空格之后, 以问号进行切割, 取第一部分
+            let datas = {
+                "name": this.testcase_name,           // 用例名称
+                "include": include,       // 用例执行前置顺序
+                "interface": {
+                    "pid": this.selected_project_id,      // 项目ID
+                    "iid": this.selected_interface_id,      // 接口ID
+                },
+                "author": this.author,         // 用例编写人员
+                "request": {          // 请求信息
+                    "test": {
+                        "name": this.testcase_name,
+                        "request": {
+                            "url": handle_url,
+                            "method": this.apiMsgData.method
+                        }
+                    }
+                },
+            };
+
+            // 处理查询字符串参数
+            let params_data = this.apiMsgData.param;
+            params_data.splice(-1, 1);   // 删除最后一个空元素
+            if (params_data.length !== 0) {
+                let new_data = this.handleData2(params_data, 'param参数');
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test.request['params'] = new_data
+            }
+
+            let paramsType = '';
+            let request_data = null;
+            if (this.apiMsgData.choiceType === 'json'){
+                paramsType = 'json';
+                request_data = this.apiMsgData.jsonVariable;
+                if (request_data.length !== 0) {
+                    datas.request.test.request['json'] = JSON.parse(request_data)
+                }
+            } else {
+                paramsType = 'data';
+                request_data = this.apiMsgData.variable;
+                request_data.splice(-1, 1);
+                if (request_data.length !== 0) {
+                    let new_data = this.handleData1(request_data, 'form-data参数');
+                    if (new_data.length === 0) {
+                        return
+                    }
+                    datas.request.test.request['data'] = new_data
+                }
+            }
+
+            // 参数化
+            let parameterized = this.apiMsgData.parameterized;
+            parameterized.splice(-1, 1);
+            if (parameterized.length !== 0) {
+                let new_data = this.handleData22(parameterized, '参数化参数');
+                console.log("new_data", new_data);
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test['parameters'] = new_data;
+            }
+
+            // variables处理
+            let variables = this.apiMsgData.globalVar;
+            variables.splice(-1, 1);
+            if (variables.length !== 0) {
+                let new_data = this.handleData11(variables, '全局变量variables');
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test['variables'] = new_data;
+            }
+
+            // headers处理
+            let headers = this.apiMsgData.header;
+            headers.splice(-1, 1);
+            if (headers.length !== 0) {
+                let new_data = this.handleData2(headers, '请求头header');
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test.request['headers'] = new_data;
+            }
+
+            // extract处理
+            let extract = this.apiMsgData.extract;
+            extract.splice(-1, 1);
+            if (extract.length !== 0) {
+                let new_data = this.handleData22(extract, 'extract参数');
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test['extract'] = new_data;
+            }
+
+            // validate处理
+            let validate = this.apiMsgData.validate;
+            validate.splice(-1, 1);
+            if (validate.length !== 0) {
+                let new_data = this.handleData4(validate, 'Assert断言参数');
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test['validate'] = new_data;
+            } else {
+                this.$message.error('未设置Assert断言!');
+                return
+            }
+
+            // setup_hooks处理
+            let setup_hooks = this.apiMsgData.setupHooks;
+            setup_hooks.splice(-1, 1);
+            if (setup_hooks.length !== 0) {
+                let new_data = this.handleData3(setup_hooks, '请求钩子setup_hooks');
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test['setup_hooks'] = new_data;
+            }
+
+            // teardown_hooks处理
+            let teardown_hooks = this.apiMsgData.teardownHooks;
+            teardown_hooks.splice(-1, 1);
+            if (teardown_hooks.length !== 0) {
+                let new_data = this.handleData3(teardown_hooks, '请求钩子teardown_hooks');
+                if (new_data.length === 0) {
+                    return
+                }
+                datas.request.test['teardown_hooks'] = new_data;
+            }
+
+            datas.include = JSON.stringify(datas.include);
+            datas.request = JSON.stringify(datas.request);
+            update_testcase({id:this.current_testcase_id, datas: datas})
+                .then(response => {
+                    this.editVisible = false;
+                    let that = this;
+                    this.$message.success(`更新用例成功`);
+                    // 1秒钟之后, 执行刷新
+                })
+                //this.$router.push('/testcases_list')
+                .catch(error => {
+                    this.editVisible = false;
+                    if (typeof error === 'object' && error.hasOwnProperty('name')) {
+                        console.log(error);
+                        this.$message.error('用例名称已存在');
+                    } else {
+                        console.log(error);
+                        this.$message.error('服务器错误');
+                    }
+                })
+
+        },
         getTestcaseDetail() {
             api.getDetail(this.current_testcase_id)
             .then(response => {
@@ -825,6 +1184,219 @@ export default {
                 this.$message.error('服务器错误')
             })
         },
+    },
+    computed: {
+        monitorParam() {
+            return this.apiMsgData.param;
+        },
+        monitorUrl() {
+            return this.apiMsgData.url;
+        },
+        monitorMethod() {
+            return this.apiMsgData.method;
+        },
+        monitorVariable() {
+            return this.apiMsgData.variable;
+        },
+        monitorHeader() {
+            return this.apiMsgData.header;
+        },
+        monitorExtract() {
+            return this.apiMsgData.extract;
+        },
+        monitorValidate() {
+            return this.apiMsgData.validate;
+        },
+
+        monitorGlobalVar() {
+            return this.apiMsgData.globalVar;
+        },
+        monitorParameterized() {
+            return this.apiMsgData.parameterized;
+        },
+        monitorSetupHooks() {
+            return this.apiMsgData.setupHooks;
+        },
+        monitorTeardownHooks() {
+            return this.apiMsgData.teardownHooks;
+        },
+
+    },
+    watch: {
+        monitorParam: {
+            handler: function () {
+                if (this.apiMsgData.param.length === 0) {
+                    this.addTableRow('param')
+                } else if (this.apiMsgData.param[this.apiMsgData.param.length - 1]['key'] || this.apiMsgData.param[this.apiMsgData.param.length - 1]['value']) {
+                    this.addTableRow('param')
+                }
+                let strParam = '';
+
+                for (let i in this.apiMsgData.param) {
+                    if (parseInt(i) + 2 === this.apiMsgData.param.length && this.apiMsgData.param[i].key) {
+                        if (this.apiMsgData.param[i].value) {
+                            strParam += this.apiMsgData.param[i].key + '=' + this.apiMsgData.param[i].value;
+                        } else {
+                            strParam += this.apiMsgData.param[i].key;
+                        }
+                    } else if (this.apiMsgData.param[i].key) {
+                        strParam += this.apiMsgData.param[i].key + '=' + this.apiMsgData.param[i].value + '&';
+                    }
+                }
+                if (strParam.substr(strParam.length - 1, 1) === '&') {
+                    strParam = strParam.substring(0, strParam.length - 1)
+                }
+                if (strParam) {
+                    this.apiMsgData.url = this.apiMsgData.url.split("?")[0] + '?' + strParam
+                } else {
+                    this.apiMsgData.url = this.apiMsgData.url.split("?")[0]
+                }
+
+            },
+            deep: true
+        },
+        monitorUrl() {
+            if (!this.apiMsgData.url) {
+                this.apiMsgData.param = [{key: '', value: ''}];
+                return
+            }
+            if (this.apiMsgData.url.indexOf('?') === -1) {
+                this.apiMsgData.param = [{key: '', value: ''}];
+                return
+            }
+
+            let url = this.apiMsgData.url.split("?");
+            url.splice(0, 1);
+            url = url.join("?");
+            if (!url) {
+                this.apiMsgData.param = [{key: '', value: ''}];
+                return
+            }
+            let strParam = url.split("&");
+            if (strParam[0]) {
+                this.apiMsgData.param = Array();
+                for (let i = 0; i < strParam.length; i++) {
+                    if (strParam[i].indexOf('=') !== -1) {
+                        let _array = strParam[i].split("=");
+
+                        let d = _array[0];
+                        _array.splice(0, 1);
+
+                        this.apiMsgData.param.push({
+                            key: d,
+                            value: _array.join("=")
+                        });
+                        // console.log(unescape(_array.join("=")))
+                    } else {
+                        this.apiMsgData.param.push({key: strParam[i], value: ''});
+                    }
+                }
+            }
+
+        },
+        monitorMethod(newValue) {
+            if (newValue === 'GET') {
+                this.bodyShow = 'first'
+            }
+        },
+        monitorVariable: {
+            handler: function () {
+                if (this.apiMsgData.variable.length === 0) {
+                    this.addTableRow('variable')
+                }
+                if (this.apiMsgData.variable[this.apiMsgData.variable.length - 1]['key'] || this.apiMsgData.variable[this.apiMsgData.variable.length - 1]['value']) {
+                    this.addTableRow('variable')
+                }
+            }
+            ,
+            deep: true
+        },
+        monitorExtract: {
+            handler: function () {
+                if (this.apiMsgData.extract.length === 0) {
+                    this.addTableRow('extract')
+                }
+                if (this.apiMsgData.extract[this.apiMsgData.extract.length - 1]['key'] || this.apiMsgData.extract[this.apiMsgData.extract.length - 1]['value']) {
+                    this.addTableRow('extract')
+                }
+            }
+            ,
+            deep: true
+        },
+        monitorHeader: {
+            handler: function () {
+                if (this.apiMsgData.header.length === 0) {
+                    this.addTableRow('header')
+                }
+                if (this.apiMsgData.header[this.apiMsgData.header.length - 1]['key'] || this.apiMsgData.header[this.apiMsgData.header.length - 1]['value']) {
+                    this.addTableRow('header')
+                }
+            }
+            ,
+            deep: true
+        },
+        monitorValidate: {
+            handler: function () {
+                if (this.apiMsgData.validate.length === 0) {
+                    this.addTableRow('validate')
+                }
+                if (this.apiMsgData.validate[this.apiMsgData.validate.length - 1]['key'] || this.apiMsgData.validate[this.apiMsgData.validate.length - 1]['value']) {
+                    this.addTableRow('validate')
+                }
+            }
+            ,
+            deep: true
+        },
+
+        monitorGlobalVar: {
+            handler: function () {
+                if (this.apiMsgData.globalVar.length === 0) {
+                    this.addTableRow('globalVar')
+                }
+                if (this.apiMsgData.globalVar[this.apiMsgData.globalVar.length - 1]['key'] ||
+                    this.apiMsgData.globalVar[this.apiMsgData.globalVar.length - 1]['value']) {
+                    this.addTableRow('globalVar')
+                }
+            },
+            deep: true
+        },
+        monitorParameterized: {
+            handler: function () {
+                if (this.apiMsgData.parameterized.length === 0) {
+                    this.addTableRow('parameterized')
+                }
+                if (this.apiMsgData.parameterized[this.apiMsgData.parameterized.length - 1]['key'] ||
+                    this.apiMsgData.parameterized[this.apiMsgData.parameterized.length - 1]['value']) {
+                    this.addTableRow('parameterized')
+                }
+            },
+            deep: true
+        },
+        monitorSetupHooks: {
+            handler: function () {
+                if (this.apiMsgData.setupHooks.length === 0) {
+                    this.addTableRow('setupHooks')
+                }
+                if (this.apiMsgData.setupHooks[this.apiMsgData.setupHooks.length - 1]['key']) {
+                    this.addTableRow('setupHooks')
+                }
+            }
+            ,
+            deep: true
+        },
+        monitorTeardownHooks: {
+            handler: function () {
+                if (this.apiMsgData.teardownHooks.length === 0) {
+                    this.addTableRow('teardownHooks')
+                }
+                if (this.apiMsgData.teardownHooks[this.apiMsgData.teardownHooks.length - 1]['key']) {
+                    this.addTableRow('teardownHooks')
+                }
+            }
+            ,
+            deep: true
+        },
+
     },
 }
 </script>
