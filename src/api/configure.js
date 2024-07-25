@@ -16,4 +16,9 @@ export default {
     delete(id) {
         return http.delete(`/configures/${id}/`)
     },
+
+    // 获取配置详情
+    getDetail(id) {
+        return http.get(`/configures/${id}/`)
+    },
 }

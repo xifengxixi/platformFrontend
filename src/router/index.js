@@ -93,6 +93,12 @@ let router = new Router({
 					name: 'configures_list'
 				},
 				{
+					path: '/configures_edit/:id',
+					component: resolve => require(['@/components/page/ConfigureEdit.vue'], resolve),
+					meta: { title: '配置编辑' },
+					name: 'configures_edit'
+				},
+				{
 					path: '/403',
 					component: resolve => require(['@/components/page/403.vue'], resolve),
 					meta: { title: '403' },

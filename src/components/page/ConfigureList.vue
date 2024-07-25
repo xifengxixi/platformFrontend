@@ -75,8 +75,6 @@ export default {
             total_nums: 0,
             del_list: [],
             delVisible: false,
-            
-            form: {},
             id: -1,
             idx: -1,
         }
@@ -164,6 +162,9 @@ export default {
                     this.delVisible = false;
                     this.$message.error('服务器错误')
                 })
+        },
+        linkTo(id) {
+            this.$router.push({ path: `/configures_edit/${id}`});
         },
     },
 }
