@@ -21,4 +21,9 @@ export default {
     getDetail(id) {
         return http.get(`/configures/${id}/`)
     },
+
+    // 新增配置
+    createConfig(params) {
+        return http.post('/configures/', params)
+    },
 }
