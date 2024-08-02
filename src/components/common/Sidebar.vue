@@ -139,11 +139,11 @@ export default {
           title: '套件管理',
           subs: [
             {
-              index: 'testsuites_list',
+              index: 'testsuits_list',
               title: '套件列表'
             },
             {
-              index: 'testsuites_add',
+              index: 'testsuits_add',
               title: '套件新增'
             }
           ]

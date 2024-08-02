@@ -75,6 +75,12 @@ let router = new Router({
 					name: 'testsuits_list'
 				},
 				{
+					path: '/testsuits_add',
+					component: resolve => require(['@/components/page/TestsuitAdd.vue'], resolve),
+					meta: { title: '套件新增' },
+					name: 'testsuits_add'
+				},
+				{
 					path: '/testcases_list',
 					component: resolve => require(['@/components/page/TestcaseList.vue'], resolve),
 					meta: { title: '用例列表' },
