@@ -21,4 +21,9 @@ export default {
     runTestSuit(id, params) {
         return http.post(`/testsuits/${id}/run/`, params)
     },
+
+    // 新增测试套件
+    addTestSuit(params) {
+        return http.post(`/testsuits/`, params)
+    },
 }
