@@ -26,4 +26,14 @@ export default {
     addTestSuit(params) {
         return http.post(`/testsuits/`, params)
     },
+
+    // 修改测试套件
+    updateTestSuit(id, params) {
+        return http.put(`/testsuits/${id}/`, params)
+    },
+
+    // 获取测试套件详情
+    getTestSuitDetail(id) {
+        return http.get(`/testsuits/${id}/`)
+    },
 }

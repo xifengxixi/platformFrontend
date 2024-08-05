@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>套件管理</el-breadcrumb-item>
-                <el-breadcrumb-item>套件新增</el-breadcrumb-item>
+                <el-breadcrumb-item>套件编辑</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
@@ -62,18 +62,31 @@
 
 <script>
 import draggable from 'vuedraggable'
-import api from '@/api/testsuit'
-import api_project from '@/api/project'
+import api from "@/api/testsuit"
+import api_project from "@/api/project"
 
 export default {
+    // beforeRouteEnter (to, from, next) {
+    //     next(vm => {
+    //         vm.current_testsuite_id = vm.$route.params.id;
+    //         //vm.getTestSuitDetail();
+    //     });
+    //     next()
+    // },
+    beforeRouteUpdate (to, from, next) {
+        this.current_testsuite_id = to.params.id;
+        this.getTestSuitDetail();
+        next()
+    },
+
     data: function(){
         return {
+            current_testsuite_id: null,
             form: {
-                name: '',           // 套件名称
+                name: '',          // 套件名称
                 project_id: '',    // 项目ID
-                include: ''
+                include: ''        // 接口ID列表字符串
             },
-
             rules: {
                 name: [
                     { required: true, message: '请输入套件名称', trigger: 'blur' }
@@ -99,11 +112,11 @@ export default {
     components:{
         draggable
     },
-
     created() {
+        this.current_testsuite_id = this.$route.params.id;
         this.getProjectNames();
+        this.getTestSuitDetail()
     },
-
     methods: {
         onSubmit(formName) {
             this.$refs[formName].validate((valid) => {
@@ -111,24 +124,19 @@ export default {
                     let that = this;
                     let includes = this.selected_ids;
                     this.form.include = JSON.stringify(includes)
-                    api.addTestSuit(this.form)
-                    .then((response)=> {
-                        this.$message.success('新增套件成功！');
+                    api.updateTestSuit(this.current_testsuite_id, this.form)
+                        .then((response) => {
+                            this.$message.success('修改套件成功！');
+                        })
+                    that.$router.push('/testsuits_list')
+                        .catch(error => {
+                            if (error.response.data.hasOwnProperty('name')) {
+                                this.$message.error('套件名称已存在');
+                            } else {
+                                this.$message.error('服务器错误');
+                            }
+                        });
 
-                        setTimeout(function () {
-                            that.$router.go();
-                        }, 1000);
-
-                    })
-                    .catch(error => {
-                        if (error.response.data.hasOwnProperty('name')) {
-                            this.$message.error('套件名称已存在');
-                        } else {
-                            this.$message.error('服务器错误');
-                        }
-                        
-                    });
-                            
                 } else {
                     this.$message.error('参数有误');
                     return false;
@@ -139,38 +147,47 @@ export default {
             this.$refs['form'].clearValidate(prop_value);
         },
         resetForm(formName) {
-            this.$refs[formName].resetFields();   // 清空表单
+            this.$refs[formName].resetFields();
         },
         getProjectNames() {
             api_project.names()
-            .then((response)=> {
-                this.project_list = response.data;
-            })
-            .catch(error => {
-                that.$message.error('服务器错误');
-            });
+                .then((response) => {
+                    this.project_list = response.data;
+                })
+                .catch(error => {
+                    that.$message.error('服务器错误');
+                });
         },
-        getInterfacesByProjectID(pro_id){
+        getInterfacesByProjectID(pro_id) {
             api_project.interfaces(pro_id)
-            .then((response)=> {
-                this.unselected = response.data;
-            })
-            .catch(error => {
-                that.$message.error('服务器错误');
-            });
+                .then((response) => {
+                    let get_unselected = response.data;
+                    this.unselected = [...get_unselected, ...this.selected]
+                    get_unselected.forEach(x => {
+                        this.selected.forEach(y => {
+                            if (x.name === y.name) {
+                                this.unselected.splice(this.unselected.findIndex(item => item.name === x.name), 1)
+                                this.unselected.splice(this.unselected.findIndex(item => item.name === y.name), 1)
+                            }
+                        })
+                    })
+                })
+                .catch(error => {
+                    that.$message.error('服务器错误');
+                });
         },
         changeResult() {
             var len = this.selected.length;
             var text = "[";
             for (var i = 0; i < len; i++) {
-                if (i === len - 1) {
-                    text += this.selected[i].id + "]";
+                if (this.selected[i].id !== undefined) {
+                    if (i > 0) {
+                        text += ", ";
+                    }
+                    text += this.selected[i].id;
                 }
-                else {
-                    text += this.selected[i].id + ", ";
-                }
-
             }
+            text += "]";
             if (len === 0) {
                 text = "[]";
             }
@@ -180,18 +197,30 @@ export default {
             var len = this.unselected.length;
             var text = "[";
             for (var i = 0; i < len; i++) {
-                if (i === len - 1) {
-                    text += this.unselected[i].id + "]";
+                if (this.unselected[i].id !== undefined) {
+                    if (i > 0) {
+                        text += ", ";
+                    }
+                    text += this.unselected[i].id;
                 }
-                else {
-                    text += this.unselected[i].id + ", ";
-                }
-
             }
+            text += "]";
             if (len === 0) {
                 text = "[]";
             }
             this.unselected_ids = text;
+        },
+        getTestSuitDetail() {
+            api.getTestSuitDetail(this.current_testsuite_id)
+                .then(response => {
+                    this.form.name = response.data.name;
+                    this.form.project_id = response.data.project_id;
+                    this.getInterfacesByProjectID(this.form.project_id);
+                    this.selected = response.data.include;
+                })
+                .catch(error => {
+                    this.$message.error('服务器错误');
+                })
         },
     }
 }
