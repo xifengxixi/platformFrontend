@@ -3,8 +3,8 @@ import http from "@/utils/requests";
 export default {
 
     // 批量删除测试套件
-    batchDelete(ids) {
-        return http.post(`/testsuits/batch_delete/`, ids)
+    batchDelete(params) {
+        return http.post(`/testsuits/batch_delete/`, params)
     },
 
     // 获取测试套件列表

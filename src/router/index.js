@@ -117,6 +117,12 @@ let router = new Router({
 					name: 'configures_add'
 				},
 				{
+					path: '/reports_list',
+					component: resolve => require(['@/components/page/ReportList.vue'], resolve),
+					meta: { title: '报告列表' },
+					name: 'reports_list'
+				},
+				{
 					path: '/403',
 					component: resolve => require(['@/components/page/403.vue'], resolve),
 					meta: { title: '403' },
