@@ -123,6 +123,30 @@ let router = new Router({
 					name: 'reports_list'
 				},
 				{
+					path: '/reports_view/:id',
+					component: resolve => require(['@/components/page/ReportView.vue'], resolve),
+					meta: { title: '报告查看' },
+					name: 'reports_view'
+				},
+				{
+					path: '/jobs_list',
+					component: resolve => require(['@/components/page/JobList.vue'], resolve),
+					meta: { title: '工程列表' },
+					name: 'jobs_list'
+				},
+				{
+					path: '/jobs_add',
+					component: resolve => require(['@/components/page/JobAdd.vue'], resolve),
+					meta: { title: '工程新增' },
+					name: 'jobs_add'
+				},
+				{
+					path: '/jobs_edit/:id',
+					component: resolve => require(['@/components/page/JobEdit.vue'], resolve),
+					meta: { title: '工程编辑' },
+					name: 'jobs_edit'
+				},
+				{
 					path: '/403',
 					component: resolve => require(['@/components/page/403.vue'], resolve),
 					meta: { title: '403' },

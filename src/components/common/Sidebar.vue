@@ -165,11 +165,11 @@ export default {
           title: 'CICD',
           subs: [
             {
-              index: 'font_list',
+              index: 'jobs_list',
               title: '工程列表'
             },
             {
-              index: 'font_add',
+              index: 'jobs_add',
               title: '新增工程'
             },
           ]
