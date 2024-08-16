@@ -99,6 +99,12 @@ let router = new Router({
 					name: 'testcases_edit'
 				},
 				{
+					path: '/testcases_add',
+					component: resolve => require(['@/components/page/TestcaseAdd.vue'], resolve),
+					meta: { title: '用例新增' },
+					name: 'testcases_add'
+				},
+				{
 					path: '/configures_list',
 					component: resolve => require(['@/components/page/ConfigureList.vue'], resolve),
 					meta: { title: '配置列表' },

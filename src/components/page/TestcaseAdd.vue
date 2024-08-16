@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb separator="/">
                 <el-breadcrumb-item>用例管理</el-breadcrumb-item>
-                <el-breadcrumb-item>用例编辑</el-breadcrumb-item>
+                <el-breadcrumb-item>用例新增</el-breadcrumb-item>
             </el-breadcrumb>
         </div>
         <div class="container">
@@ -85,6 +85,15 @@
                                 <el-button slot="append" type="primary"
                                     @click="ParamViewStatus = !ParamViewStatus">Params</el-button>
                             </el-input>
+                            <template>
+                                <el-popover
+                                    placement="top-start"
+                                    width="200"
+                                    trigger="hover"
+                                    content="当请求为GET时，点击params添加参数">
+                                    <i class="el-icon-question" slot="reference"></i>
+                                </el-popover>
+                            </template>
                         </el-form-item>
                     </el-form>
 
@@ -386,8 +395,8 @@
             </el-row>
         </div>
 
-        <!-- 编辑弹出框 -->
-        <el-dialog title="编辑用例" :visible.sync="editVisible" width="28%" center>
+        <!-- 创建弹出框 -->
+        <el-dialog title="创建用例" :visible.sync="editVisible" width="28%" center>
             <el-form label-width="120px">
                 <el-form-item label="用例名称" required>
                     <el-input v-model="testcase_name" clearable></el-input>
@@ -421,7 +430,6 @@
 
     </div>
 </template>
-
 
 <script>
 import api from '@/api/testcase'
@@ -487,15 +495,12 @@ export default {
             cell: Object(),
 
             // 编辑弹出框
-            current_testcase_id: null,
             editVisible: false,
             testcase_name: "",
             author: "",
         }
     },
     created() {
-        this.current_testcase_id = this.$route.params.id;
-        this.getTestcaseDetail();
         this.getProjectNames();
     },
     components: {
@@ -789,6 +794,8 @@ export default {
                 return
             }
 
+            this.selected_project_id = null;
+            this.selected_interface_id = null;
             this.editVisible = true;
         },
         // 处理数据1, 有param_type, 返回js对象
@@ -817,7 +824,7 @@ export default {
                         return []
                     }
                 } else if (param_type === 'boolean') {
-                    if (/^(true|True|TRUE|1|0)$/.test(value)) {
+                    if (/^(true|True|TRUE|1)$/.test(value)) {
                         value = true;
                     } else if (/^(false|False|FALSE|0)$/.test(value)) {
                         value = false;
@@ -833,11 +840,11 @@ export default {
         },
 
         // 处理数据11, 有param_type, 返回js数组
-        handleData11(request_data, msg){
+        handleData11(request_data, msg) {
             let data_arr = [];
-            for(let i = 0; i < request_data.length; i++) {
+            for (let i = 0; i < request_data.length; i++) {
                 let key = request_data[i].key;
-                if (! key) {
+                if (!key) {
                     this.$message.error(msg + '的key为空!');
                     return []
                 }
@@ -904,7 +911,6 @@ export default {
                 if (/^\[/.test(value)) {
                     value = JSON.parse(value);
                 }
-                console.log("value: ", value);
                 one_data[key] = value;
                 data_arr.push(one_data)
             }
@@ -990,9 +996,6 @@ export default {
                 return
             }
 
-            if (this.selected_configure_id === '') {
-                this.selected_configure_id = null;
-            }
             let include = {"config": this.selected_configure_id, "testcases": this.selected_testcase_id, "untestcases": this.unselected_testcase_id};
 
             let handle_url = this.apiMsgData.url.trim().split('?', 1)[0];   // 去掉前后空格之后, 以问号进行切割, 取第一部分
@@ -1015,7 +1018,7 @@ export default {
                 },
             };
 
-            // 处理查询字符串参数
+            // 处理查询字符串参数 url字符串凭借
             let params_data = this.apiMsgData.param;
             params_data.splice(-1, 1);   // 删除最后一个空元素
             if (params_data.length !== 0) {
@@ -1026,6 +1029,7 @@ export default {
                 datas.request.test.request['params'] = new_data
             }
 
+            // json或者是form-data
             let paramsType = '';
             let request_data = null;
             if (this.apiMsgData.choiceType === 'json'){
@@ -1052,7 +1056,6 @@ export default {
             parameterized.splice(-1, 1);
             if (parameterized.length !== 0) {
                 let new_data = this.handleData22(parameterized, '参数化参数');
-                console.log("new_data", new_data);
                 if (new_data.length === 0) {
                     return
                 }
@@ -1130,12 +1133,15 @@ export default {
 
             datas.include = JSON.stringify(datas.include);
             datas.request = JSON.stringify(datas.request);
-            api.editTestcase(this.current_testcase_id, datas)
+            api.createTestcase(datas)
                 .then(response => {
                     this.editVisible = false;
                     let that = this;
-                    this.$message.success(`更新用例成功`);
+                    this.$message.success(`新增用例成功`);
                     // 1秒钟之后, 执行刷新
+                    setTimeout(() => {
+                        that.$router.go();
+                    }, 1000);
                 })
                 //this.$router.push('/testcases_list')
                 .catch(error => {
@@ -1149,40 +1155,6 @@ export default {
                     }
                 })
 
-        },
-        getTestcaseDetail() {
-            api.getDetail(this.current_testcase_id)
-            .then(response => {
-                this.author = response.data.author;
-                this.testcase_name = response.data.testcase_name;
-                this.project_id = response.data.selected_project_id;
-                this.getInterfaceNames(this.project_id);
-                this.interface_id = response.data.selected_interface_id;
-                this.getConfigureNames(this.interface_id);
-                this.getTestcasesByInterfaceId(this.interface_id);
-                this.selected_configure_id = response.data.selected_configure_id;
-                this.selected_pre_testcase_id = response.data.selected_testcase_id;
-
-                this.apiMsgData.method = response.data.method;
-                this.apiMsgData.url = response.data.url;
-                this.apiMsgData.param = response.data.param;
-                this.apiMsgData.header = response.data.header;
-                this.apiMsgData.variable = response.data.variable;
-                this.apiMsgData.jsonVariable = response.data.jsonVstiable;
-                if (this.apiMsgData.jsonVariable === 'null') {
-                    this.apiMsgData.choiceType = 'data';
-                };
-
-                this.apiMsgData.extract = response.data.extract;
-                this.apiMsgData.validate = response.data.validate;
-                this.apiMsgData.globalVar = response.data.globalVar;
-                this.apiMsgData.parameterized = response.data.parameterized;
-                this.apiMsgData.setupHooks = response.data.setupHooks;
-                this.apiMsgData.teardownHooks = response.data.teardownHooks;
-            })
-            .catch(error => {
-                this.$message.error('服务器错误')
-            })
         },
     },
     computed: {
