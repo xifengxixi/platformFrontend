@@ -27,7 +27,7 @@
                                     <el-form-item label="选择接口">
                                         <el-autocomplete class="inline-input" v-model="interface_name"
                                             :fetch-suggestions="querySearchInterface" placeholder="请输入选择接口"
-                                            @select="handleSelectInterface" value-key="name" clearable>
+                                            @select="handleSelectInterface" @clear="handleClearInterface" value-key="name" clearable>
                                         </el-autocomplete>
                                     </el-form-item>
                                 </el-col>
@@ -654,8 +654,13 @@ export default {
         handleSelectInterface(item) {
             this.interface_name = item.name;
             this.interface_id = item.id;
+            this.selected_configure_id = "";
             this.getConfigureNames(this.interface_id);
             this.getTestcasesByInterfaceId(this.interface_id);
+        },
+        handleClearInterface() {
+            this.interface_name = '';
+            this.selected_configure_id = '';
         },
 
         querySearchConfigure(queryString, cb) {
@@ -1156,8 +1161,10 @@ export default {
                 this.author = response.data.author;
                 this.testcase_name = response.data.testcase_name;
                 this.project_id = response.data.selected_project_id;
+                this.selected_project_id = response.data.selected_project_id;
                 this.getInterfaceNames(this.project_id);
                 this.interface_id = response.data.selected_interface_id;
+                this.selected_interface_id = response.data.selected_interface_id;
                 this.getConfigureNames(this.interface_id);
                 this.getTestcasesByInterfaceId(this.interface_id);
                 this.selected_configure_id = response.data.selected_configure_id;
@@ -1168,7 +1175,7 @@ export default {
                 this.apiMsgData.param = response.data.param;
                 this.apiMsgData.header = response.data.header;
                 this.apiMsgData.variable = response.data.variable;
-                this.apiMsgData.jsonVariable = response.data.jsonVstiable;
+                this.apiMsgData.jsonVariable = response.data.jsonVariable;
                 if (this.apiMsgData.jsonVariable === 'null') {
                     this.apiMsgData.choiceType = 'data';
                 };

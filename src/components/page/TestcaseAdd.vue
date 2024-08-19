@@ -27,7 +27,7 @@
                                     <el-form-item label="选择接口">
                                         <el-autocomplete class="inline-input" v-model="interface_name"
                                             :fetch-suggestions="querySearchInterface" placeholder="请输入选择接口"
-                                            @select="handleSelectInterface" value-key="name" clearable>
+                                            @select="handleSelectInterface" @clear="handleClearInterface" value-key="name" clearable>
                                         </el-autocomplete>
                                     </el-form-item>
                                 </el-col>
@@ -659,8 +659,13 @@ export default {
         handleSelectInterface(item) {
             this.interface_name = item.name;
             this.interface_id = item.id;
+            this.selected_configure_id = '';
             this.getConfigureNames(this.interface_id);
             this.getTestcasesByInterfaceId(this.interface_id);
+        },
+        handleClearInterface() {
+            this.interface_name = '';
+            this.selected_configure_id = '';
         },
 
         querySearchConfigure(queryString, cb) {
