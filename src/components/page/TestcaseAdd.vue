@@ -14,59 +14,67 @@
                             <el-row :gutter="20">
                                 <el-col :span="24">
                                     <el-form-item label="选择项目">
-                                        <el-autocomplete class="inline-input" v-model="project_name"
-                                            :fetch-suggestions="querySearchProject" placeholder="请输入选择项目"
-                                            @select="handleSelectProject" value-key="name" clearable>
-                                        </el-autocomplete>
+                                        <el-select v-model="selected_project_id" placeholder="请选择"
+                                            @change="getInterfaceNames(selected_project_id)">
+                                            <el-option v-for="(item, key) in project_list" :key="key" :label="item.name"
+                                                :value="item.id">
+                                            </el-option>
+                                        </el-select>
                                     </el-form-item>
                                 </el-col>
                             </el-row>
 
                             <el-row :gutter="20">
-                                <el-col :span="12" style="width: 40%">
+                                <el-col :span="12" style="width: 46%">
                                     <el-form-item label="选择接口">
-                                        <el-autocomplete class="inline-input" v-model="interface_name"
-                                            :fetch-suggestions="querySearchInterface" placeholder="请输入选择接口"
-                                            @select="handleSelectInterface" @clear="handleClearInterface" value-key="name" clearable>
-                                        </el-autocomplete>
+                                        <el-select v-model="selected_interface_id" placeholder="请选择"
+                                            @change="getConfTestcaseByInterfaceID(selected_interface_id)">
+                                            <el-option v-for="(item, key) in interface_list" :key="key"
+                                                :label="item.name" :value="item.id">
+                                            </el-option>
+                                        </el-select>
                                     </el-form-item>
                                 </el-col>
 
                                 <el-col :span="12">
                                     <el-form-item label="选择配置">
                                         <el-select v-model="selected_configure_id" placeholder="请选择配置" clearable>
-                                            <el-option v-for="(item, key) in configure_list" :key="key" :label="item.name"
-                                                :value="item.id">
+                                            <el-option v-for="(item, key) in configure_list" :key="key"
+                                                :label="item.name" :value="item.id">
                                             </el-option>
                                         </el-select>
                                     </el-form-item>
                                 </el-col>
-
                             </el-row>
 
                             <el-row :gutter="100">
-                                <el-col :span="24">
-                                    <div style="text-align: left">
-                                        <el-transfer style="text-align: left; display: inline-block;"
-                                            :render-content="renderFunc" v-model="selected_pre_testcase_id" filterable
-                                            :titles="['待选前置用例', '已选前置用例']"
-                                            :format="{noChecked: '${total}', hasChecked: '${checked}/${total}'}"
-                                            :props="{key: 'id', label: 'name',}" @change="handleChange"
-                                            :data="testcase_list">
+                                <el-col :span="12">
+                                    <div class="drag-box-item">
+                                        <div class="item-title">待选前置用例</div>
+                                        <draggable v-model="unselected" :options="dragOptions" @change="unchangeResult()">
+                                            <transition-group tag="div" class="item-ul">
+                                                <div v-for="item in unselected" class="drag-list" :key="item.id">
+                                                    {{ item.name }}
+                                                </div>
+                                            </transition-group>
+                                        </draggable>
+                                    </div>
+                                </el-col>
 
-                                            <span slot-scope="{ option }">{{ option.name }}</span>
-
-                                            <el-button class="transfer-footer" slot="left-footer"
-                                                style="margin-left: 10px;" size="small"
-                                                @click="resetSorting">重置排序</el-button>
-
-                                            <el-button class="transfer-footer" slot="right-footer"
-                                                style="margin-left: 10px;" size="small"
-                                                @click="resetSorting">重置排序</el-button>
-                                        </el-transfer>
+                                <el-col :span="12">
+                                    <div class="drag-box-item">
+                                        <div class="item-title">已选前置用例</div>
+                                        <draggable v-model="selected" :options="dragOptions" @change="changeResult()">
+                                            <transition-group tag="div" class="item-ul">
+                                                <div v-for="item in selected" class="drag-list" :key="item.id">
+                                                    {{ item.name }}
+                                                </div>
+                                            </transition-group>
+                                        </draggable>
                                     </div>
                                 </el-col>
                             </el-row>
+
                         </el-form>
                     </div>
                 </el-tab-pane>
@@ -86,10 +94,7 @@
                                     @click="ParamViewStatus = !ParamViewStatus">Params</el-button>
                             </el-input>
                             <template>
-                                <el-popover
-                                    placement="top-start"
-                                    width="200"
-                                    trigger="hover"
+                                <el-popover placement="top-start" width="200" trigger="hover"
                                     content="当请求为GET时，点击params添加参数">
                                     <i class="el-icon-question" slot="reference"></i>
                                 </el-popover>
@@ -157,7 +162,6 @@
                                     style="height: 30px;display: flex; align-items: center;">
                                     <el-radio label="data">form-data</el-radio>
                                     <el-radio label="json">json</el-radio>
-                                    <!--<el-radio label="text">text</el-radio>-->
                                 </el-radio-group>
                                 <el-button type="primary" size="mini" v-show="apiMsgData.choiceType === 'json'"
                                     style="margin-left:20px;" @click="formatData()">格式化
@@ -432,6 +436,7 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import api from '@/api/testcase'
 import api_project from '@/api/project'
 import api_interface from '@/api/interface'
@@ -440,23 +445,23 @@ export default {
     data() {
         return {
             // 基本信息
-            project_name: "",
-            project_id: "",
             project_list: [],
-            interface_name: "",
-            interface_id: "",
             interface_list: [],
             configure_list: [],
+            selected_project_id: null,
+            selected_interface_id: null,
             selected_configure_id: null,
 
-            testcase_list: [],
-            testcase_list_copy: [],
-            subBtnDisable: true,
-            testcase_list_right: [],
-            testcase_list_left: [],
-            selected_pre_testcase_id: [],
-            formIndex: -1,
-            formOption: null,
+            unselected: [],
+            selected: [],
+            unselected_testcase_id: [],
+            selected_testcase_id: [],
+            dragOptions:{
+                animation: 120,
+                scroll: true,
+                group: 'sortlist',
+                ghostClass: 'ghost-style'
+            },
 
             // 请求信息
             types: ['data', 'json', 'params'],
@@ -504,99 +509,41 @@ export default {
         this.getProjectNames();
     },
     components: {
+        draggable,
         editor: require('vue2-ace-editor'),
     },
     methods: {
-        renderFunc(h, option) {
-            let temp = `${option.name}`
-            return h('span', {
-                on: {
-                    'dragstart': ($event) => {
-                        this.formIndex = $event.target.__vue__.option.weight - 1
-                        this.formOption = $event.target.__vue__.option
-                    },
-                    'dragover': ($event) => {
-                        $event.preventDefault();
-                        $event.dataTransfer.effectAllowed = "move";
-
-                    },
-                    'drop': ($event) => {
-                        let targetIndex = $event.target.__vue__.option.weight - 1;
-
-                        // 如果拖拽至当前元素之前，则减一处理
-                        if (this.formIndex < targetIndex) {
-                            targetIndex--;
-                        }
-
-                        // 将拖动的元素插入到目标位置
-                        let movedItem = this.testcase_list.splice(this.formIndex, 1)[0];
-                        this.testcase_list.splice(targetIndex, 0, movedItem);
-
-
-                        // 重新设置 weight 值
-                        this.testcase_list.forEach((item, index) => {
-                            item.weight = index + 1;
-                        });
-
-                        // 通过 weight 值对 selected_pre_testcase_id 进行排序
-                        this.selected_pre_testcase_id.sort((a, b) => {
-                            let a_index = this.testcase_list.findIndex(item => item.id === a);
-                            let b_index = this.testcase_list.findIndex(item => item.id === b);
-                            return a_index - b_index;
-                        });
-
-                        this.subBtnDisable = false;
-                        console.log(this.selected_pre_testcase_id);
-                    }
-                },
-                attrs: {
-                    draggable: true
-                }
-            }, temp)
-        },
-        resetSorting() {
-            this.testcase_list = JSON.parse(JSON.stringify(this.testcase_list_copy)); // 还原原始数据
-
-            this.testcase_list.sort((a, b) => a.weight - b.weight);
-            this.testcase_list.forEach((item, index) => {
-                item.weight = index + 1;
-            });
-            // 通过 weight 值对 selected_pre_testcase_id 进行排序
-            this.selected_pre_testcase_id.sort((a, b) => {
-                let a_index = this.testcase_list.findIndex(item => item.id === a);
-                let b_index = this.testcase_list.findIndex(item => item.id === b);
-                return a_index - b_index;
-            });
-            console.log(this.selected_pre_testcase_id);
-
-            this.subBtnDisable = true; // 标记未做修改状态
-        },
-        // toggleSelection(action, side) {
-        //     const target = side === 'left' ? this.testcase_list_left : this.testcase_list_right;
-        //     console.log(target);
-        //     if (action === 'Invert') {
-        //         target.forEach(item => {
-        //             item.selected = !item.selected;
-        //         });
-        //     } else if (action === 'Cancel') {
-        //         target.forEach(item => {
-        //             item.selected = false;
-        //         });
-        //     }
-        // },
-
-        handleChange(value, direction, movedKeys){
-            let result_item_right = [];
-            let result_item_left = [];
-            this.testcase_list.forEach(item => {
-                if (value.includes(item.id)) {
-                    result_item_right.push(item);
+        changeResult() {
+            let len = this.selected.length;
+            let text = "[";
+            for (let i = 0; i < len; i++) {
+                if (i === len - 1) {
+                    text += this.selected[i].id + "]";
                 } else {
-                    result_item_left.push(item);
+                    text += this.selected[i].id + ", ";
                 }
-            });
-            this.testcase_list_right = result_item_right;
-            this.testcase_list_left = result_item_left;
+
+            }
+            if (len === 0) {
+                text = "[]";
+            }
+            this.selected_testcase_id = JSON.parse(text);
+        },
+        unchangeResult() {
+            let unselected_testcase = this.unselected
+            let len = unselected_testcase.length;
+            let text = "[";
+            for (let i = 0; i < len; i++) {
+                if (i === len - 1) {
+                    text += unselected_testcase[i].id + "]";
+                } else {
+                    text += unselected_testcase[i].id + ", ";
+                }
+            }
+            if (len === 0) {
+                text = "[]";
+            }
+            this.unselected_testcase_id = JSON.parse(text);
         },
 
         getProjectNames() {
@@ -620,71 +567,49 @@ export default {
         },
 
         getConfigureNames(interface_id) {
+            // 保存当前选择的配置
+            const previousSelection = this.configure_list.find(config => config.id === this.selected_configure_id);
+
             api_interface.configures(interface_id)
-            .then(response => {
-                if (response.status === 200) {
-                    this.configure_list = response.data
-                }
-                else if (response.status === 404) {
-                    this.$message.error('当前接口下没有配置')
-                }
-            })
-            .catch(error => {
-                this.$message.error('服务器错误')
-            })
+                .then(response => {
+                    if (response.status === 200) {
+                        this.configure_list = response.data;
+
+                        // 如果之前的配置不在新的配置列表中，手动添加到列表中
+                        if (previousSelection && !this.configure_list.some(config => config.id === previousSelection.id)) {
+                            this.configure_list.push(previousSelection);
+                        }
+
+                        // 保持之前的选择，如果之前的配置已经不在列表中，就保留显示
+                        if (previousSelection && previousSelection.id === this.selected_configure_id) {
+                            this.selected_configure_id = previousSelection.id;
+                        }
+                    } else if (response.status === 404) {
+                        this.$message.error('当前接口下没有配置');
+                        // 清空配置列表并保留之前的选择
+                        this.configure_list = previousSelection ? [previousSelection] : [];
+                    }
+                })
+                .catch(error => {
+                    this.$message.error('服务器错误');
+                    // 清空配置列表并保留之前的选择
+                    this.configure_list = previousSelection ? [previousSelection] : [];
+                });
         },
 
-        createFilter(queryString) {
-            return (item) => {
-                return (item.name.toLowerCase().includes(queryString.toLowerCase()));
-            };
-        },
-
-        querySearchProject(queryString, cb) {
-            var project_list = this.project_list;
-            var results = queryString ? project_list.filter(this.createFilter(queryString)) : project_list;
-            cb(results);
-        },
-        handleSelectProject(item) {
-            this.project_name = item.name;
-            this.project_id = item.id;
-            this.getInterfaceNames(this.project_id);
-        },
-
-        querySearchInterface(queryString, cb) {
-            var interface_list = this.interface_list;
-            var results = queryString ? interface_list.filter(this.createFilter(queryString)) : interface_list;
-            cb(results);
-        },
-        handleSelectInterface(item) {
-            this.interface_name = item.name;
-            this.interface_id = item.id;
-            this.selected_configure_id = '';
-            this.getConfigureNames(this.interface_id);
-            this.getTestcasesByInterfaceId(this.interface_id);
-        },
-        handleClearInterface() {
-            this.interface_name = '';
-            this.selected_configure_id = '';
-        },
-
-        querySearchConfigure(queryString, cb) {
-            var configure_list = this.configure_list;
-            var results = queryString ? configure_list.filter(this.createFilter(queryString)) : configure_list;
-            cb(results);
-        },
-
-        getTestcasesByInterfaceId(interface_id) {
+        getTestcaseNames(interface_id) {
             api.names({'interface_id': interface_id})
             .then(response => {
-                this.testcase_list = response.data;
-                this.testcase_list = this.formatTestcaseList(this.testcase_list);
-                this.testcase_list_copy = JSON.parse(JSON.stringify(this.testcase_list)); // 备份原始数据
-                this.testcase_list_left = this.testcase_list;
+                this.unselected = response.data;
             })
             .catch(error => {
                 this.$message.error('服务器错误');
             })
+        },
+
+        getConfTestcaseByInterfaceID(interface_id) {
+            this.getTestcaseNames(interface_id);
+            this.getConfigureNames(interface_id);
         },
 
         formatTestcaseList(list) {
@@ -799,8 +724,8 @@ export default {
                 return
             }
 
-            this.selected_project_id = null;
-            this.selected_interface_id = null;
+            // this.selected_project_id = null;
+            // this.selected_interface_id = null;
             this.editVisible = true;
         },
         // 处理数据1, 有param_type, 返回js对象
@@ -1023,7 +948,7 @@ export default {
                 },
             };
 
-            // 处理查询字符串参数 url字符串凭借
+            // 处理查询字符串参数 url字符串拼接
             let params_data = this.apiMsgData.param;
             params_data.splice(-1, 1);   // 删除最后一个空元素
             if (params_data.length !== 0) {

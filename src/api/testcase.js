@@ -41,4 +41,9 @@ export default {
     getDetail(id, params) {
         return http.get(`/testcases/${id}/`, params)
     },
+
+    // 通过用例ids 获取用例列表
+    namesByIds(params) {
+        return http.post(`/testcases/names_by_ids/`, params)
+    },
 }
