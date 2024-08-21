@@ -31,9 +31,6 @@
                 <el-table-column prop="success" label="成功总数" width="80">
                 </el-table-column>
 
-                <el-table-column prop="failed" label="失败总数" width="80">
-                </el-table-column>
-
                 <el-table-column prop="create_time" label="创建时间" sortable align="center">
                 </el-table-column>
 

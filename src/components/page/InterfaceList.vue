@@ -236,7 +236,7 @@ export default {
             else {
                 this.runVisible = false
                 this.fullscreenLoading = true;
-                let response = await run_by_interface({ iid: this.id, env_id: this.env_id })
+                let response = await api.run(this.api_id, {env_id: this.env_id})
                 console.log(response)
                 if (response.data.message === '当前接口不存在用例无法运行') {
                     console.log('xxxxxxxxxxxxxx')

@@ -37,6 +37,11 @@ export default {
     configures(id) {
         return http.get(`/interfaces/${id}/configures/`)
     },
+
+    // 通过接口id运行用例
+    run(id, params) {
+        return http.post(`/interfaces/${id}/run/`, params)
+    },
 }
 
 
