@@ -1,6 +1,7 @@
 <template>
   <div class="reportShow">
     <h1>Test Report: {{ html_report_name }}</h1>
+
     <h2>Summary</h2>
     <table id="summary">
 
@@ -19,16 +20,6 @@
         <td colspan="2">{{ platform.platform }}</td>
       </tr>
       <tr>
-        <th>STAT</th>
-        <th colspan="2">TESTCASES (success/fail)</th>
-        <th colspan="2">TESTSTEPS (success/fail/error/skip)</th>
-      </tr>
-      <tr>
-        <td>total (details) =></td>
-        <td colspan="2">{{ stat.total }} ({{ stat.success }}/{{ stat.fail }})</td>
-        <td colspan="2">{{ stat2.total }} ({{ stat2.successes }}/{{ stat2.failures }}/{{ stat2.errors }}/{{ stat2.skipped }})</td>
-      </tr>
-      <tr>
         <th>TOTAL</th>
         <th>SUCCESS</th>
         <th>FAILED</th>
@@ -36,25 +27,33 @@
         <th>SKIPPED</th>
       </tr>
       <tr>
-        <td>{{ stat.total }}</td>
-        <td>{{ stat.success }}</td>
-        <td>{{ stat.fail }}</td>
-        <td>{{ stat2.errors }}</td>
-        <td>{{ stat2.skipped }}</td>
+        <td>{{ stat.testsRun }}</td>
+        <td>{{ stat.successes }}</td>
+        <td>{{ stat.failures }}</td>
+        <td>{{ stat.errors }}</td>
+        <td>{{ stat.skipped }}</td>
       </tr>
     </table>
 
     <h2>Details</h2>
 
-    <template v-for="(test_suite_summary, suite_index) in details">
-      <h3>{{ test_suite_summary.name }}</h3>
-      <table :id="'suite_' + suite_index" class="details">
+    <template v-for="(detail, detail_index) in details">
+      <h3>{{ detail.name }}</h3>
+      <table :id="'suite_' + detail_index" class="details">
         <tr>
-          <td>TOTAL: {{ stat.total }}</td>
-          <td>SUCCESS: {{ stat.success }}</td>
-          <td>FAILED: {{ stat.fail }}</td>
-          <td>ERROR: {{ stat2.errors }}</td>
-          <td>SKIPPED: {{ stat2.skipped }}</td>
+          <th>base_url</th>
+          <td colspan="2">{{ detail.base_url }}</td>
+          <th colspan="2" class="detail">
+            <a class="button" :href="'#suite_output_' + (detail_index + 1)">parameters & output</a>
+          </th>
+        </tr>
+
+        <tr>
+          <td>TOTAL: {{ detail.stat.testsRun }}</td>
+          <td>SUCCESS: {{ detail.stat.successes }}</td>
+          <td>FAILED: {{ detail.stat.failures }}</td>
+          <td>ERROR: {{ detail.stat.errors }}</td>
+          <td>SKIPPED: {{ detail.stat.skipped }}</td>
         </tr>
 
         <tr>
@@ -64,55 +63,33 @@
           <th>Detail</th>
         </tr>
 
-        <template v-for="(record, record_index) in test_suite_summary.records">
-          <tr :id="'record_' + suite_index + '_' + record_index">
+        <template v-for="(record, record_index) in detail.records">
+          <tr :id="'record_' + detail_index + '_' + record_index">
             <th :class="record.status" style="width:5em;">{{ record.status }}</th>
             <td colspan="2">{{ record.name }}</td>
-            <td style="text-align:center;width:6em;">{{ record.response_time }}</td>
+            <td style="text-align:center;width:6em;">{{ record.meta_data.response.response_time_ms }} ms</td>
             <td class="detail">
-              <a class="button" :href="'#popup_log_' + suite_index + '_' + record_index + '_' + 1">log-1</a>
-              <div :id="'popup_log_' + suite_index + '_' + record_index + '_' + 1" class="overlay">
+
+              <a class="button" :href="'#popup_log_' + detail_index + '_' + record_index">log</a>
+              <div :id="'popup_log_' + detail_index + '_' + record_index" class="overlay">
                 <div class="popup">
                   <h2>Request and Response data</h2>
-                  <a class="close" :href="'#record_' + suite_index + '_' + record_index + '_' + 1">&times;</a>
+                  <a class="close" :href="'#record_' + detail_index + '_' + record_index">&times;</a>
+                  
                   <div class="content">
                     <h3>Name: {{ record.name }}</h3>
                     <h3>Request:</h3>
                     <div style="overflow: auto">
                       <table>
-                        <tr>
-                          <th>url</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['request']['url'] }}
+                        <tr v-for="(request_v, request_k) in record.meta_data.request">
+                          <th>{{ request_k }}</th>
+                          <td v-if="request_k !== 'headers'">
+                            {{ request_v }}
                           </td>
-                        </tr>
-                        <tr>
-                          <th>method</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['request']['method'] }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>headers</th>
-                          <td>
-                            <div>
-                              <strong>User-Agent</strong>: python-requests/2.25.1
+                          <td v-else>
+                            <div v-for="(value, key) in request_v">
+                              <strong>{{ key }}</strong>: {{ value }}
                             </div>
-                            <div>
-                              <strong>Accept-Encoding</strong>: gzip, deflate
-                            </div>
-                            <div>
-                              <strong>Accept</strong>: */*
-                            </div>
-                            <div>
-                              <strong>Connection</strong>: keep-alive
-                            </div>
-                          </td>
-                        </tr>
-                        <tr v-if="record.meta_datas.data[0]['request']['body']">
-                          <th>body</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['request']['body'] }}
                           </td>
                         </tr>
                       </table>
@@ -121,121 +98,58 @@
                     <h3>Response:</h3>
                     <div style="overflow: auto">
                       <table>
-                        <tr>
-                          <th>ok</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['ok'] }}
+                        <tr v-for="(response_v, response_k) in record.meta_data.response">
+                          <th>{{ response_k }}</th>
+                          <td v-if="response_k !== 'headers'">
+                            {{ response_v }}
                           </td>
-                        </tr>
-                        <tr>
-                          <th>url</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['url'] }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>status_code</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['status_code'] }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>reason</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['reason'] }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>cookies</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['cookies'] }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>encoding</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['encoding'] }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>headers</th>
-                          <td>
-                            <div>
-                              <strong>Date</strong>: {{ record.meta_datas.data[0]['response']['headers']['Date'] }}
+                          <td v-else>
+                            <div v-for="(value, key) in response_v">
+                              <strong>{{ key }}</strong>: {{ value }}
                             </div>
-                            <div>
-                              <strong>Server</strong>: WSGIServer/0.2 CPython/3.7.1
-                            </div>
-                            <div>
-                              <strong>Content-Type</strong>: application/json
-                            </div>
-                            <div>
-                              <strong>Vary</strong>: Accept, Origin, Cookie
-                            </div>
-                            <div>
-                              <strong>Allow</strong>: GET, POST, PUT, DELETE, HEAD, OPTIONS
-                            </div>
-                            <div>
-                              <strong>X-Frame-Options</strong>: DENY
-                            </div>
-                            <div>
-                              <strong>Content-Length</strong>: 2179
-                            </div>
-                            <div>
-                              <strong>X-Content-Type-Options</strong>: nosniff
-                            </div>
-                            <div>
-                              <strong>Referrer-Policy</strong>: same-origin
-                            </div>
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>content_type</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['Content-Type'] }}
-                          </td>
-                        </tr>
-                        <tr>
-                          <th>json</th>
-                          <td>
-                            {{ record.meta_datas.data[0]['response']['json'] }}
                           </td>
                         </tr>
                       </table>
                     </div>
+
                     <h3>Validators:</h3>
                     <div style="overflow: auto">
                       <table>
-                        <tr>
-                          <th>check</th>
-                          <th>comparator</th>
-                          <th>expect value</th>
-                          <th>actual value</th>
-                        </tr>
-                        <tr>
-                          <td class="passed">
-                            {{ record.meta_datas.validators[0]['check'] }}
-                          </td>
-                          <td>{{ record.meta_datas.validators[0]['comparator'] }}</td>
-                          <td>{{ record.meta_datas.validators[0]['expect_value'] }}</td>
-                          <td>{{ record.meta_datas.validators[0]['check_value'] }}</td>
-                        </tr>
+                        <template v-for="(validator, index) in record.meta_data.validators">
+                          <tr v-if="index === 0">
+                            <template v-for="(v, k) in validator">
+                              <th v-if="k !== 'check_result'">{{ k }}</th>
+                            </template>
+                          </tr>
+                          <tr>
+                            <template v-for="(v, k) in validator">
+                              <template v-if="k == 'check'">
+                                <td v-if="validator['check_result'] == 'pass'" class="passed">{{ v }}</td>
+                                <td v-else class="failed">{{ v }}</td>
+                              </template>
+                              <template v-else-if="k !== 'check_result'">
+                                <td>{{ v }}</td>
+                              </template>
+                            </template>
+                          </tr>
+                        </template>
                       </table>
                     </div>
+
                     <h3>Statistics:</h3>
                     <div style="overflow: auto">
                       <table>
                         <tr>
                           <th>content_size(bytes)</th>
-                          <td>{{ record.meta_datas.stat.content_size }}</td>
+                          <td>{{ record.meta_data.response.content_size }}</td>
                         </tr>
                         <tr>
                           <th>response_time(ms)</th>
-                          <td>{{ record.meta_datas.stat.response_time_ms }}</td>
+                          <td>{{ record.meta_data.response.response_time_ms }}</td>
                         </tr>
                         <tr>
                           <th>elapsed(ms)</th>
-                          <td>{{ record.meta_datas.stat.elapsed_ms }}</td>
+                          <td>{{ record.meta_data.response.elapsed_ms }}</td>
                         </tr>
 
                       </table>
@@ -245,10 +159,10 @@
               </div>
 
               <a v-if="record.attachment" class="button"
-                :href="'#popup_attachment_' + suite_index + '_' + record_index">traceback</a>
-              <div :id="'popup_attachment_' + suite_index + '_' + record_index" class="overlay">
+                :href="'#popup_attachment_' + detail_index + '_' + record_index">traceback</a>
+              <div :id="'popup_attachment_' + detail_index + '_' + record_index" class="overlay">
                 <div class="popup">
-                  <a class="close" :href="'#record_' + suite_index + '_' + record_index">&times;</a>
+                  <a class="close" :href="'#record_' + detail_index + '_' + record_index">&times;</a>
                   <div class="content">
                     <pre>{{ record.attachment }}</pre>
                   </div>
@@ -279,10 +193,6 @@ export default {
       details: Array,
     }
   },
-  // created() {
-  //   this.report_id = this.$route.params.id;
-  //   this.getData()
-  // },
   methods: {
     getData() {
       api.reportDetail(this.report_id)
@@ -290,11 +200,9 @@ export default {
           let summary = JSON.parse(response.data.summary)
           this.html_report_name = summary.html_report_name;
           this.time = summary.time;
-          this.stat = summary.stat.testcases;
-          this.stat2 = summary.stat.teststeps
+          this.stat = summary.stat;
           this.platform = summary.platform;
           this.details = summary.details;
-          console.log(this.details)
         })
         .catch(error => {
           if (typeof error === 'object' && error.hasOwnProperty('status_code')) {
@@ -308,7 +216,6 @@ export default {
     },
   },
   mounted() {
-    // this.showData();
     this.report_id = this.$route.params.id;
     this.getData()
   }
