@@ -39,12 +39,28 @@
 
     <template v-for="(detail, detail_index) in details">
       <h3>{{ detail.name }}</h3>
-      <table :id="'suite_' + detail_index" class="details">
+      <table :id="'suite_' + (detail_index + 1)" class="details">
         <tr>
           <th>base_url</th>
           <td colspan="2">{{ detail.base_url }}</td>
           <th colspan="2" class="detail">
             <a class="button" :href="'#suite_output_' + (detail_index + 1)">parameters & output</a>
+            <div :id="'suite_output_' + (detail_index + 1)" class="overlay">
+              <div class="popup">
+                <h2>Parameters and Output</h2>
+                <a class="close" :href="'#suite_' + (detail_index + 1)">&times;</a>
+                <div class="content">
+                  <div style="overflow: auto;">
+                    <table>
+                      <tr>
+                        <th>variables</th>
+                        <th>output</th>
+                      </tr>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
           </th>
         </tr>
 
@@ -64,17 +80,17 @@
         </tr>
 
         <template v-for="(record, record_index) in detail.records">
-          <tr :id="'record_' + detail_index + '_' + record_index">
+          <tr :id="'record_' + (detail_index + 1) + '_' + (record_index + 1)">
             <th :class="record.status" style="width:5em;">{{ record.status }}</th>
             <td colspan="2">{{ record.name }}</td>
             <td style="text-align:center;width:6em;">{{ record.meta_data.response.response_time_ms }} ms</td>
             <td class="detail">
 
-              <a class="button" :href="'#popup_log_' + detail_index + '_' + record_index">log</a>
-              <div :id="'popup_log_' + detail_index + '_' + record_index" class="overlay">
+              <a class="button" :href="'#popup_log_' + (detail_index + 1) + '_' + (record_index + 1)">log</a>
+              <div :id="'popup_log_' + (detail_index + 1) + '_' + (record_index + 1)" class="overlay">
                 <div class="popup">
                   <h2>Request and Response data</h2>
-                  <a class="close" :href="'#record_' + detail_index + '_' + record_index">&times;</a>
+                  <a class="close" :href="'#record_' + (detail_index + 1) + '_' + (record_index + 1)">&times;</a>
                   
                   <div class="content">
                     <h3>Name: {{ record.name }}</h3>
@@ -159,8 +175,8 @@
               </div>
 
               <a v-if="record.attachment" class="button"
-                :href="'#popup_attachment_' + detail_index + '_' + record_index">traceback</a>
-              <div :id="'popup_attachment_' + detail_index + '_' + record_index" class="overlay">
+                :href="'#popup_attachment_' + (detail_index + 1) + '_' + (record_index + 1)">traceback</a>
+              <div :id="'popup_attachment_' + (detail_index + 1) + '_' + (record_index + 1)" class="overlay">
                 <div class="popup">
                   <a class="close" :href="'#record_' + detail_index + '_' + record_index">&times;</a>
                   <div class="content">
