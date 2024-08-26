@@ -218,7 +218,7 @@ export default {
             else {
                 this.runVisible = false
                 this.fullscreenLoading = true;
-                let response = await run_by_testcase({ iid: this.id, env_id: this.env_id })
+                let response = await api.runTestcase(this.testcase_id, {env_id: this.env_id})
                 if (response.status === 201) {
                     this.fullscreenLoading = false
                     this.open(response)
