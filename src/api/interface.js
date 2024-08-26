@@ -42,6 +42,11 @@ export default {
     run(id, params) {
         return http.post(`/interfaces/${id}/run/`, params)
     },
+
+    // 通过接口ids 获取接口列表
+    namesByIds(params) {
+        return http.post(`/interfaces/names_by_ids/`, params)
+    },
 }
 
 

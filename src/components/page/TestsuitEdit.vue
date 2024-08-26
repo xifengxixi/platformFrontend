@@ -64,20 +64,9 @@
 import draggable from 'vuedraggable'
 import api from "@/api/testsuit"
 import api_project from "@/api/project"
+import api_interface from "@/api/interface"
 
 export default {
-    // beforeRouteEnter (to, from, next) {
-    //     next(vm => {
-    //         vm.current_testsuite_id = vm.$route.params.id;
-    //         //vm.getTestSuitDetail();
-    //     });
-    //     next()
-    // },
-    beforeRouteUpdate (to, from, next) {
-        this.current_testsuite_id = to.params.id;
-        this.getTestSuitDetail();
-        next()
-    },
 
     data: function(){
         return {
@@ -104,8 +93,8 @@ export default {
             },
             unselected: [],
             selected: [],
-            selected_ids: '',
-            unselected_ids: ''
+            selected_ids: [],
+            unselected_ids: []
         }
     },
 
@@ -191,7 +180,7 @@ export default {
             if (len === 0) {
                 text = "[]";
             }
-            this.selected_ids = text;
+            this.selected_ids = JSON.parse(text);
         },
         unchangeResult() {
             var len = this.unselected.length;
@@ -208,7 +197,7 @@ export default {
             if (len === 0) {
                 text = "[]";
             }
-            this.unselected_ids = text;
+            this.unselected_ids = JSON.parse(text);
         },
         getTestSuitDetail() {
             api.getTestSuitDetail(this.current_testsuite_id)
@@ -216,7 +205,18 @@ export default {
                     this.form.name = response.data.name;
                     this.form.project_id = response.data.project_id;
                     this.getInterfacesByProjectID(this.form.project_id);
-                    this.selected = response.data.include;
+                    this.selected_ids = response.data.include;
+                    this.getInterfaceNamesByIds(JSON.parse(this.selected_ids));
+                })
+                .catch(error => {
+                    this.$message.error('服务器错误');
+                })
+        },
+        getInterfaceNamesByIds(ids) {
+            api_interface.namesByIds({ids: ids})
+                .then(response => {
+                    this.selected = response.data;
+                    console.log(this.selected);
                 })
                 .catch(error => {
                     this.$message.error('服务器错误');

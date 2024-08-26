@@ -1,9 +1,7 @@
 <template>
   <div class="sidebar">
-    <!--<el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" unique-opened router>-->
-
     <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#324157"
-             text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
+      text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
       <template v-for="item in items">
         <template v-if="item.subs">
           <el-submenu :index="item.index" :key="item.index">
@@ -13,7 +11,7 @@
             <template v-for="subItem in item.subs">
               <el-submenu v-if="subItem.subs" :index="subItem.index" :key="subItem.index">
                 <template slot="title">{{ subItem.title }}</template>
-                <el-menu-item v-for="(threeItem,i) in subItem.subs" :key="i" :index="threeItem.index">
+                <el-menu-item v-for="(threeItem, i) in subItem.subs" :key="i" :index="threeItem.index">
                   {{ threeItem.title }}
                 </el-menu-item>
               </el-submenu>
@@ -23,7 +21,6 @@
             </template>
           </el-submenu>
         </template>
-
 
         <template v-else>
           <el-menu-item :index="item.index" :key="item.index">
@@ -44,7 +41,7 @@ export default {
       items: [
         {
           icon: 'el-icon-s-home',
-          index: 'dashboard',
+          index: '/dashboard',
           title: '系统首页'
         },
         {
@@ -53,11 +50,11 @@ export default {
           title: '项目管理',
           subs: [
             {
-              index: 'projects_list',
+              index: '/projects_list',
               title: '项目列表'
             },
             {
-              index: 'projects_add',
+              index: '/projects_add',
               title: '项目新增'
             }
           ]
@@ -68,11 +65,11 @@ export default {
           title: '环境管理',
           subs: [
             {
-              index: 'envs_list',
+              index: '/envs_list',
               title: '环境列表'
             },
             {
-              index: 'envs_add',
+              index: '/envs_add',
               title: '环境新增'
             }
           ]
@@ -83,7 +80,7 @@ export default {
           title: '内置函数',
           subs: [
             {
-              index: 'builtin_list',
+              index: '/builtin_list',
               title: '函数列表'
             },
           ]
@@ -94,11 +91,11 @@ export default {
           title: '接口管理',
           subs: [
             {
-              index: 'interfaces_list',
+              index: '/interfaces_list',
               title: '接口列表'
             },
             {
-              index: 'interfaces_add',
+              index: '/interfaces_add',
               title: '接口新增'
             }
           ]
@@ -109,11 +106,11 @@ export default {
           title: '用例管理',
           subs: [
             {
-              index: 'testcases_list',
+              index: '/testcases_list',
               title: '用例列表'
             },
             {
-              index: 'testcases_add',
+              index: '/testcases_add',
               title: '用例新增'
             }
           ]
@@ -124,11 +121,11 @@ export default {
           title: '配置管理',
           subs: [
             {
-              index: 'configures_list',
+              index: '/configures_list',
               title: '配置列表'
             },
             {
-              index: 'configures_add',
+              index: '/configures_add',
               title: '配置新增'
             }
           ]
@@ -139,11 +136,11 @@ export default {
           title: '套件管理',
           subs: [
             {
-              index: 'testsuits_list',
+              index: '/testsuits_list',
               title: '套件列表'
             },
             {
-              index: 'testsuits_add',
+              index: '/testsuits_add',
               title: '套件新增'
             }
           ]
@@ -154,7 +151,7 @@ export default {
           title: '报告管理',
           subs: [
             {
-              index: 'reports_list',
+              index: '/reports_list',
               title: '报告列表'
             }
           ]
@@ -165,11 +162,11 @@ export default {
           title: 'CICD',
           subs: [
             {
-              index: 'jobs_list',
+              index: '/jobs_list',
               title: '工程列表'
             },
             {
-              index: 'jobs_add',
+              index: '/jobs_add',
               title: '新增工程'
             },
           ]
@@ -177,14 +174,12 @@ export default {
       ]
     }
   },
-  computed:{
-    onRoutes(){
-      // return this.$route.path.replace('/','');
+  computed: {
+    onRoutes() {
       return this.$route.path;
-
     }
   },
-  created(){
+  created() {
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
     bus.$on('collapse', msg => {
       this.collapse = msg;
@@ -194,21 +189,24 @@ export default {
 </script>
 
 <style scoped>
-.sidebar{
+.sidebar {
   display: block;
   position: absolute;
   left: 0;
   top: 70px;
-  bottom:0;
+  bottom: 0;
   overflow-y: scroll;
 }
-.sidebar::-webkit-scrollbar{
+
+.sidebar::-webkit-scrollbar {
   width: 0;
 }
-.sidebar-el-menu:not(.el-menu--collapse){
+
+.sidebar-el-menu:not(.el-menu--collapse) {
   width: 250px;
 }
-.sidebar > ul {
-  height:100%;
+
+.sidebar>ul {
+  height: 100%;
 }
 </style>

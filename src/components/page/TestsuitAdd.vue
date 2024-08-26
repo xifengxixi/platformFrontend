@@ -91,8 +91,8 @@ export default {
             },
             unselected: [],
             selected: [],
-            selected_ids: '',
-            unselected_ids: ''
+            selected_ids: [],
+            unselected_ids: []
         }
     },
 
@@ -174,7 +174,7 @@ export default {
             if (len === 0) {
                 text = "[]";
             }
-            this.selected_ids = text;
+            this.selected_ids = JSON.parse(text);
         },
         unchangeResult() {
             var len = this.unselected.length;
@@ -191,7 +191,7 @@ export default {
             if (len === 0) {
                 text = "[]";
             }
-            this.unselected_ids = text;
+            this.unselected_ids = JSON.parse(text);
         },
     }
 }
