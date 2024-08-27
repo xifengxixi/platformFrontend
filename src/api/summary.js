@@ -5,7 +5,7 @@ export default{
 
     // 汇总
     summary(params) {
-        return http.get(`/summary/data/`, params)
+        return http.get(`/summary/`, params)
     },
 
 }

@@ -1,6 +1,6 @@
 <template>
   <div class="login-wrap">
-    <!--    <img src="@/assets/img/logo.png" alt="logo">-->
+    
     <div class="ms-login">
       <div class="ms-title">自动化测试管理平台</div>
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="ms-content">
@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import api from "@/api/project";
+import api from "@/api/user";
 
 export default {
   data() {
@@ -61,60 +61,50 @@ export default {
       this.$refs['ruleForm'].clearValidate(prop_value)
     },
     submitForm(formName) {
-      // alert(1111);
       this.$refs[formName].validate(async (valid) => {
-        // alert("valid: " + valid);
         if (valid) {
-          // localStorage.setItem('ms_username',this.ruleForm.username);
-          // this.$router.push('/');
           var that = this;
           try {
             var response = await api.login(this.ruleForm);
-            //本地存储用户信息
-            // cookie.setCookie('username', response.data.username, 1);
-            // cookie.setCookie('user_id', response.data.user_id, 1);
-            //cookie.setCookie('token', response.data.token, 1);
+            if (response.status === 200) {
+              //本地存储用户信息
+              // cookie.setCookie('username', response.data.username, 1);
+              // cookie.setCookie('user_id', response.data.user_id, 1);
+              //cookie.setCookie('token', response.data.token, 1);
 
-            // 使用浏览器本地存储保存token
-            if (that.remember_me) {
-              // 记住登录
-              sessionStorage.clear();
-              localStorage.token = response.data.token;
-              localStorage.user_id = response.data.user_id;
-              localStorage.username = response.data.username;
+              // 使用浏览器本地存储保存token
+              if (that.remember_me) {
+                // 记住登录
+                sessionStorage.clear();
+                localStorage.token = response.data.access;
+                localStorage.user_id = response.data.userid;
+                localStorage.username = response.data.username;
+              }
+              else {
+                // 未记住登录
+                localStorage.clear();
+                sessionStorage.token = response.data.access;
+                sessionStorage.user_id = response.data.userid;
+                sessionStorage.username = response.data.username;
+              }
+              this.$bus.$emit('GetUserInfo', response)
+              that.$router.push('/dashboard');
+              }
+            else if (response.status === 401) {
+              this.$message.error('用户名或密码错误');
             }
-            else {
-              // 未记住登录
-              localStorage.clear();
-              sessionStorage.token = response.data.token;
-              sessionStorage.user_id = response.data.user_id;
-              sessionStorage.username = response.data.username;
-            }
-            this.$bus.$emit('GetUserInfo', response)
-            that.$router.push('/dashboard');
           }
           catch (error) {
-            console.log(error.response.data);
-            // if("non_field_errors" in error && error.status_code === 400) {
-            if (error.response.data?.['non_field_errors']) {
-              // that.err_msg = error.non_field_errors[0];
-              that.err_msg = '用户名或密码错误';
-            }
-            else if (error.response) {
+            if (error.response) {
               that.err_msg = '服务器异常';
             }
             else if (error.request) {
-              // that.err_msg = error.message;
               that.err_msg = "网络异常";
-
             }
             that.err_info = true;
           }
-
-
         }
         else {
-          // console.log('error submit!!');
           this.err_msg = '参数有误';
           this.err_info = true;
           return false;
@@ -184,4 +174,5 @@ export default {
   font-size: 12px;
   line-height: 30px;
   color: #F56C6C;
-}</style>
+}
+</style>

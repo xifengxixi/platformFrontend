@@ -1,11 +1,10 @@
 <template>
   <div class="login-wrap">
-    <!--    <img src="@/assets/img/logo.png" alt="logo">-->
+
     <div class="ms-login">
       <div class="ms-title">用户注册</div>
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" class="ms-content">
         <el-form-item prop="username" :error="err_username_msg">
-          <!-- @focus="err_username_msg=''" -->
           <el-input v-model="ruleForm.username" placeholder="请输入用户名" clearable @focus="clearValidate('username')">
             <el-button slot="prepend" icon="el-icon-lx-people"></el-button>
           </el-input>
@@ -56,7 +55,6 @@ export default {
       else {
         try {
           var response = await api.check_username(value)
-          // console.log('账号数:' + response.data.count)
           if (response.data.count > 0) {
             this.err_username_msg = '用户名已存在';
           } else {
