@@ -212,12 +212,15 @@ export default {
         confirmRun() {
             api.runTestSuit(this.id, {env_id: this.env_id})
             .then(response => {
-                this.message.success('运行成功');
+                this.runVisible = false;
+                this.$message.success('运行成功');
             })
             .catch(error => {
                 if (typeof error === 'object' && error.hasOwnProperty('msg')) {
+                    this.runVisible = false;
                     this.$message.error(error.msg);
                 } else {
+                    this.runVisible = false;
                     this.$message.error('服务器错误');
                 }
             })
