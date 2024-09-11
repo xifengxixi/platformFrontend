@@ -13,15 +13,10 @@ export default{
         return http.post(`/user/register/`, params)
     },
 
-    // 注册-检查用户名是否存在
-    check_username(username) {
-        return http.get(`/user/` + username + '/count/', )
-    },
-
     // 注册-检查邮箱是否存在
-    check_email(email) {
-        return http.get(`/user/` + email + '/count/', )
-    }
+    check_email(params) {
+        return http.post(`/user/check_email/`, params)
+    },
 }
 
 

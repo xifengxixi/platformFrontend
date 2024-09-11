@@ -16,9 +16,16 @@ http.interceptors.request.use(function (config) {
         return
     }
     else {
-        const token = window.sessionStorage.getItem('token')
-        if (token){
-            config.headers['Authorization'] = token
+        // 优先从会话存储空间获取 token
+        let token = window.sessionStorage.getItem('token');
+        
+        // 如果会话存储空间中没有 token，则从本地存储空间获取
+        if (!token) {
+            token = window.localStorage.getItem('token');
+        }
+
+        if (token) {
+            config.headers['Authorization'] = 'B ' + token;
         }
     }
     return config

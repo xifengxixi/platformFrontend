@@ -53,30 +53,7 @@ export default {
         callback(new Error('用户名最少6位，最多20位'));
       }
       else {
-        try {
-          var response = await api.check_username(value)
-          if (response.data.count > 0) {
-            this.err_username_msg = '用户名已存在';
-          } else {
-            callback();
-          }
-        }
-        catch (error) {
-          if (error.response) {
-            this.err_username_msg = '服务器错误';
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          }
-          else if (error.request) {
-            this.err_username_msg = error.request;
-            console.log(error.request);
-          }
-          else {
-            this.err_username_msg = error.message;
-            console.log('Error', error.message);
-          }
-        }
+        callback();
       }
     };
 
@@ -88,7 +65,7 @@ export default {
         callback(new Error('请输入合法的邮箱地址'));
       }
       else {
-        api.check_email(value)
+        api.check_email({email: value})
           .then((response) => {
             if (response.data.count > 0) {
               this.err_email_msg = '邮箱已存在';
@@ -180,7 +157,7 @@ export default {
               sessionStorage.clear();
               localStorage.clear();
 
-              localStorage.token = response.data.token;
+              localStorage.token = response.data.access;
               localStorage.username = response.data.username;
               localStorage.user_id = response.data.id;
               // console.log(localStorage);
