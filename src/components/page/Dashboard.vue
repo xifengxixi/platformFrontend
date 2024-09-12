@@ -19,10 +19,10 @@
             <span>用例执行比率</span>
           </div>
           <span>成功率</span>
-          <el-progress :text-inside="true" :stroke-width="24" :percentage="number" status="success">
+          <el-progress :text-inside="true" :stroke-width="24" :percentage="statistics.success_rate" status="success">
           </el-progress>
           <span>失败率</span>
-          <el-progress :text-inside="true" :stroke-width="20" :percentage="number" status="exception">
+          <el-progress :text-inside="true" :stroke-width="20" :percentage="statistics.fail_rate" status="exception">
           </el-progress>
         </el-card>
       </el-col>
@@ -177,7 +177,6 @@
       data(){
         return{
           user: Object,
-          number:80,
           statistics: Object
         }
       },
