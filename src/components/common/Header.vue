@@ -2,8 +2,9 @@
   <div class="header">
     <!-- 折叠按钮 -->
     <div class="collapse-btn" @click="collapseChage">
-      <i class="el-icon-menu"></i>
-    </div>
+            <i v-if="!collapse" class="el-icon-s-fold"></i>
+            <i v-else class="el-icon-s-unfold"></i>
+        </div>
     <div class="logo">测试平台</div>
     <div class="header-right">
       <div class="header-user-con">
