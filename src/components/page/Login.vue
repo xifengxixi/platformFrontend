@@ -121,7 +121,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  background-image: url("@/assets/img/bg1.jpg");
+  background-image: url("@/assets/img/bg.jpg");
   background-size: 100%;
 }
 
@@ -133,7 +133,7 @@ export default {
   position: absolute;
   left: 50%;
   top: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
   overflow: hidden;
 }
 
