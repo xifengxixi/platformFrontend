@@ -102,7 +102,7 @@ export default {
         },
         {
           icon: 'el-icon-s-opportunity',
-          index: '8',
+          index: '5',
           title: '用例管理',
           subs: [
             {
@@ -117,7 +117,7 @@ export default {
         },
         {
           icon: 'el-icon-s-ticket',
-          index: '10',
+          index: '6',
           title: '配置管理',
           subs: [
             {
@@ -132,7 +132,7 @@ export default {
         },
         {
           icon: 'el-icon-files',
-          index: '13',
+          index: '7',
           title: '套件管理',
           subs: [
             {
@@ -147,28 +147,13 @@ export default {
         },
         {
           icon: 'el-icon-s-marketing',
-          index: '16',
+          index: '8',
           title: '报告管理',
           subs: [
             {
               index: '/reports_list',
               title: '报告列表'
             }
-          ]
-        },
-        {
-          icon: 'el-icon-setting',
-          index: '17',
-          title: 'CICD',
-          subs: [
-            {
-              index: '/jobs_list',
-              title: '工程列表'
-            },
-            {
-              index: '/jobs_add',
-              title: '新增工程'
-            },
           ]
         },
       ]

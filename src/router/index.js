@@ -135,24 +135,6 @@ let router = new Router({
 					name: 'reports_view'
 				},
 				{
-					path: '/jobs_list',
-					component: resolve => require(['@/components/page/JobList.vue'], resolve),
-					meta: { title: '工程列表' },
-					name: 'jobs_list'
-				},
-				{
-					path: '/jobs_add',
-					component: resolve => require(['@/components/page/JobAdd.vue'], resolve),
-					meta: { title: '工程新增' },
-					name: 'jobs_add'
-				},
-				{
-					path: '/jobs_edit/:id',
-					component: resolve => require(['@/components/page/JobEdit.vue'], resolve),
-					meta: { title: '工程编辑' },
-					name: 'jobs_edit'
-				},
-				{
 					path: '/403',
 					component: resolve => require(['@/components/page/403.vue'], resolve),
 					meta: { title: '403' },
@@ -195,10 +177,10 @@ router.beforeEach((to, from, next) => {
       }
     else {
         let routerName = ['builtin_edit', 'configures_edit', 'testcases_edit', 'reports_view', 'testsuites_edit'];
-        // console.log('routerName', routerName);
+
         if (routerName.includes(from.name)) {
             let path_name = to.path.split("/")[2];
-            // console.log('path_name', path_name);
+
             if (/\D/.test(path_name)) {
                 next({name: path_name});
             }
