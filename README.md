@@ -1,10 +1,10 @@
 # 一、前言
 
 本项目为接口自动化测试平台前端，vue+element   
-[项目后端地址](https://gitee.com/xifengxixi/platformBackend)
+[项目后端地址](https://github.com/xifengxixi/platformBackend)
 
 - 项目参与者：溪风习习
-- 个人语雀地址：[https://www.yuque.com/xifengxixi](https://gitee.com/link?target=https%3A%2F%2Fwww.yuque.com%2Fxifengxixi)
+- 个人语雀地址：[https://www.yuque.com/xifengxixi](https://www.yuque.com/xifengxixi)
 - 技术支持邮箱：1107872406@qq.com
 
 > 本项目不建议用于实际企业项目，仅为个人练手使用
