@@ -30,62 +30,62 @@ npm run serve
 
 - 登录注册
 
-![login.png](src\assets\img\login.png)
+![login.png](src/assets/img/login.png)
 
-![register.png](src\assets\img\register.png)
+![register.png](src/assets/img/register.png)
 
 - 系统首页
 
-![home.png](src\assets\img\home.png)
+![home.png](src/assets/img/home.png)
 
 - 项目管理
 
-![project_list.png](src\assets\img\project_list.png)
+![project_list.png](src/assets/img/project_list.png)
 
-![project_add.png](src\assets\img\project_add.png)
+![project_add.png](src/assets/img/project_add.png)
 
 - 环境管理
 
-![env_list.png](src\assets\img\env_list.png)
+![env_list.png](src/assets/img/env_list.png)
 
-![env_add.png](src\assets\img\env_add.png)
+![env_add.png](src/assets/img/env_add.png)
 
 - 内置函数
 
-![func_list.png](src\assets\img\func_list.png)
+![func_list.png](src/assets/img/func_list.png)
 
-![func_edit.png](src\assets\img\func_edit.png)
+![func_edit.png](src/assets/img/func_edit.png)
 
 - 接口管理
 
-![api_list.png](src\assets\img\api_list.png)
+![api_list.png](src/assets/img/api_list.png)
 
-![api_add.png](src\assets\img\api_add.png)
+![api_add.png](src/assets/img/api_add.png)
 
 - 用例管理
 
-![testcase_list](src\assets\img\testcase_list.png)
+![testcase_list](src/assets/img/testcase_list.png)
 
-![testcase_add](src\assets\img\testcase_add.png)
+![testcase_add](src/assets/img/testcase_add.png)
 
-![testcase_edit](src\assets\img\testsuit_edit.png)
+![testcase_edit](src/assets/img/testsuit_edit.png)
 
 - 配置管理
 
-![config_list](src\assets\img\config_list.png)
+![config_list](src/assets/img/config_list.png)
 
-![config_add](src\assets\img\config_add.png)
+![config_add](src/assets/img/config_add.png)
 
 - 套件管理
 
-![testsuit_list](src\assets\img\testsuit_list.png)
+![testsuit_list](src/assets/img/testsuit_list.png)
 
-![testsuit_add](src\assets\img\testsuit_add.png)
+![testsuit_add](src/assets/img/testsuit_add.png)
 
-![testsuit_edit](src\assets\img\testsuit_edit.png)
+![testsuit_edit](src/assets/img/testsuit_edit.png)
 
 - 报告管理
 
-![report_list](src\assets\img\report_list.png)
+![report_list](src/assets/img/report_list.png)
 
-![report_vies](src\assets\img\report_view.png)
+![report_vies](src/assets/img/report_view.png)
